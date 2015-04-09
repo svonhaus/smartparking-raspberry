@@ -6,13 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public abstract class PanelWelcome extends JPanel 
 {
@@ -176,13 +170,32 @@ public abstract class PanelWelcome extends JPanel
         else
         	_checkBoxClient.setSelected(true);
     }
+
+    public void showOptionPane(String message, String titre, String type)
+    {
+        int typeMessage = -1;
+
+        switch (type)
+        {
+            case "ERROR_MESSAGE": typeMessage = JOptionPane.ERROR_MESSAGE; break;
+            case "INFORMATION_MESSAGE": typeMessage = JOptionPane.INFORMATION_MESSAGE; break;
+            case "WARNING_MESSAGE": typeMessage = JOptionPane.INFORMATION_MESSAGE; break;
+        }
+
+        JOptionPane.showMessageDialog(null, message, titre, typeMessage);
+    }
+
+    public void setTagLu(String tag)
+    {
+        _textFieldTagLu.setText(tag);
+    }
 	
 	public ActionListener inListener()
 	{
 		return new ActionListener()
 		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) 
+			public void actionPerformed(ActionEvent arg0)
 			{
 				actionScalaIn();
 			}
