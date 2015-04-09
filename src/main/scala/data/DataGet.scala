@@ -1,4 +1,4 @@
-package interfaceKit.data
+package data
 
 import org.json._
 import scalaj.http._

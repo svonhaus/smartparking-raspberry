@@ -1,4 +1,4 @@
-package interfaceKit.controller
+package controller
 
 import com.phidgets.event._
 import com.phidgets.{ InterfaceKitPhidget, PhidgetException }

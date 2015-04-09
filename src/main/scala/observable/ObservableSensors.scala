@@ -1,4 +1,4 @@
-package interfaceKit.observable
+package observable
 
 import rx.lang.scala.Observable
 

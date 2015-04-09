@@ -1,6 +1,6 @@
-package interfaceKit.controller
+package controller
 
-import interfaceKit.observable.ObservableSensors
+import observable.ObservableSensors
 import rx.lang.scala.schedulers.NewThreadScheduler
 
 import scala.concurrent.ExecutionContext.Implicits.global

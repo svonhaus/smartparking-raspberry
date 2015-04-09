@@ -1,4 +1,4 @@
-package interfaceKit.controller
+package controller
 
 /**
  * Created by Steven on 18-03-15.

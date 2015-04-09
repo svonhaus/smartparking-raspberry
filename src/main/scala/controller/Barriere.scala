@@ -1,11 +1,7 @@
-/** 
- * @author Jason 
- */ 
-package barrier.controller
-
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.io.IOException;
+/**
+ * @author Jason
+ */
+package controller
 
 import com.phidgets._
 import com.phidgets.event._

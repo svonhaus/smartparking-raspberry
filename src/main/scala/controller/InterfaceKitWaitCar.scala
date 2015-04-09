@@ -1,7 +1,7 @@
-package interfaceKit.controller
+package controller
 
-import interfaceKit.observable.ObservableSensors
-import interfaceKit.data.DataAdd
+import data.DataAdd
+import observable.ObservableSensors
 import rx.lang.scala.Observable
 import rx.lang.scala.schedulers.NewThreadScheduler
 import scala.concurrent.{Await, Promise}

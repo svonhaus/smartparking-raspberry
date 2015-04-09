@@ -1,6 +1,6 @@
 package interfacekit
 
-import interfaceKit.controller._
+import controller._
 import model.Person
 import org.json.JSONObject
 

@@ -1,36 +1,31 @@
-package viewScala
+package view
 
-import barrier.controller._
+import controller._
 import model._
 import viewJava._
-import com.phidgets._
 import com.phidgets.event._
 import javax.swing._
-import scala.util._
-import interfaceKit.data._
-import interfaceKit.controller.InterfaceKit
+import data._
+import controller.InterfaceKit
 
-object Main {
+class UserInterface {
   
   def main(args: Array[String]) 
   {
-    InterfaceKit.openAny
-    val interfaceGraphique = true
-    val barriere = new Barriere()
-    barriere.Barriere()
-    
-    if(interfaceGraphique){
+        InterfaceKit.openAny
+        val barriere = new Barriere()
+        barriere.Barriere()
       
         val panelWelcome = new PanelWelcome
         {
 
           override def actionScalaForm()
           {
-            if (_comboBox.getSelectedItem() == "Inscription")
+            if (_comboBox.getSelectedItem == "Inscription")
             {
               RFID.action = "write"
               switchToWriteMode()
-            } else if (_comboBox.getSelectedItem() == "Scan"){
+            } else if (_comboBox.getSelectedItem == "Scan"){
               RFID.action = "no"
               switchToReadMode()
             } else {
@@ -65,7 +60,6 @@ object Main {
           }
 
           override def actionScalaUpdateTag() {
-
               verifChamps match {
                 case None => {
                   val person = new Person(_textFieldUserPrenom.getText, _textFieldUserNom.getText, _textFieldUserMail.getText)
@@ -226,56 +220,6 @@ object Main {
         }
     
         val MainJFrame = new MainJFrame(panelWelcome)
-        
-    } else {
-      
-        RFID.rfid.addTagGainListener(new TagGainListener() {
-            def tagGained(oe: TagGainEvent) {
-              val tag = oe.getValue
-              println("\nTag Gained: " + tag)
-              val userOption = DataGet.found(tag)
 
-                userOption match {
-                  case Some(user) => {
-                    val action = DataGet.foundAction()
-                    action match {
-                      case ("in" | "out") => {
-                        DataGet.searchTagUser(tag, action) match {
-                          case true => {
-                            RFID.ledGreenOn()
-                            barriere.ouverture
-                            RFID.carPassed(tag) match {
-                              case true => DataAdd.addFlowParking(tag, action)
-                              case false => println("Car not passed")
-                            }
-                            Thread.sleep(1000)
-                            barriere.fermeture
-                            RFID.ledGreenOff()
-                          }
-                          case false => {
-                            RFID.ledRedOn() //rouge si le tag est présent en BD   
-                            Thread.sleep(1000)
-                            RFID.ledRedOff()
-                          }
-                        }
-                      }
-                      case _ => {
-                            println("Pas la bonne action")
-                            RFID.ledRedOn() 
-                            Thread.sleep(1000)
-                            RFID.ledRedOff()
-                      }
-                    }
-                  }
-                  case None => {
-                    RFID.ledRedOn() //rouge si le tag est présent en BD
-                    Thread.sleep(1000)
-                    RFID.ledRedOff()
-                  }
-                }
-            }
-         })
-            
-     }
   }
 }

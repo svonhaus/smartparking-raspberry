@@ -1,22 +1,13 @@
-package barrier.controller
+package controller
 
-import java.nio.ByteBuffer
-import model._
 import java.util.UUID
+
 import com.phidgets._
 import com.phidgets.event._
-import scalaj.http._
+import data._
+import model._
+
 import scala.util._
-import java.io.InputStreamReader
-import org.json._
-import javax.swing._
-import java.awt.event._
-import java.awt._
-import interfaceKit.controller.InterfaceKit
-import interfaceKit.observable.ObservableSensors
-import rx.lang.scala.Observable
-import interfaceKit.controller._
-import interfaceKit.data._
 
 /**
  * @author laurent

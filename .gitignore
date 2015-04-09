@@ -221,3 +221,15 @@ pip-log.txt
 .idea/workspace.xml
 
 *.cache
+
+*.cache
+
+*.class
+
+project/target/streams/$global/update/$global/streams/out
+
+project/target/streams/compile/compileIncremental/$global/streams/out
+
+project/target/streams/compile/copyResources/$global/streams/out
+
+*.iml
