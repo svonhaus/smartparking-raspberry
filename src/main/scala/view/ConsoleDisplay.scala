@@ -11,9 +11,9 @@ class ConsoleDisplay extends AbstractDisplay
     println("[INFO] Tag read : " + tag)
   }
 
-  override def messagePerson(lastName:String, firstName:String, mail:String)
+  override def messagePerson(lastName:String, firstName:String, mail:String, inTheParking : Boolean)
   {
-    println("[INFO] PERSON : last name = " + lastName + "; first name = " + firstName + "; mail = " + mail)
+    println("[INFO] PERSON : last name = " + lastName + "; first name = " + firstName + "; mail = " + mail + "; statut = " + inTheParking)
   }
 
   override def showMessage(message:String, titre:String, typeMessage:String): Unit =

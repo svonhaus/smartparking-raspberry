@@ -17,10 +17,9 @@ public abstract class PanelWelcome extends JPanel
 	
 	protected JPanel _panelCenter, _panelSouth, _panelTop, _panelReadPan, _panelUserPan;
 	protected JButton _buttonIn, _buttonOut, _buttonOpen, _buttonClose, _buttonInscription, _buttonUpdate, _buttonUpdateTag, _buttonSearch;
-	protected JLabel _labelChoix, _labelTag, _labelUserNom, _labelUserPrenom, _labelUserMail;
-	protected JTextField _textFieldTagLu, _textFieldUserNom, _textFieldUserPrenom, _textFieldUserMail;
+	protected JLabel _labelChoix, _labelTag, _labelUserNom, _labelUserPrenom, _labelUserMail, _labelUserStatut;
+	protected JTextField _textFieldTagLu, _textFieldUserNom, _textFieldUserPrenom, _textFieldUserMail, _textFieldUserStatut;
 	protected JComboBox<String> _comboBox;
-	protected JCheckBox _checkBoxClient;
 	
 	public PanelWelcome()
 	{
@@ -54,9 +53,6 @@ public abstract class PanelWelcome extends JPanel
 	    _comboBox.addItem("Inscription");
 		_comboBox.addItem("Mise à jour");
 	    _comboBox.addActionListener(formListener());
-	    
-		_labelTag = new JLabel();
-		_textFieldTagLu = new JTextField();
 
 		_labelUserNom = new JLabel();
 	    _labelUserNom.setText("Nom : ");
@@ -76,12 +72,17 @@ public abstract class PanelWelcome extends JPanel
 	    _textFieldUserMail.setEditable(false);
 	    _textFieldUserMail.setPreferredSize(new Dimension(300, 30));
 
+		_labelTag = new JLabel();
 	    _labelTag.setText("Tag : ");
+		_textFieldTagLu = new JTextField();
 	    _textFieldTagLu.setEditable(false);
 	    _textFieldTagLu.setPreferredSize(new Dimension(300, 30));
-	    
-		_checkBoxClient = new JCheckBox("Client");
-	    _checkBoxClient.setEnabled(false);
+
+		_labelUserStatut = new JLabel();
+		_labelUserStatut.setText("Statut : ");
+		_textFieldUserStatut = new JTextField();
+		_textFieldUserStatut.setEditable(false);
+		_textFieldUserStatut.setPreferredSize(new Dimension(300, 30));
 
 	    setBackground(Color.GRAY);
 	    setLayout(new BorderLayout());
@@ -98,8 +99,8 @@ public abstract class PanelWelcome extends JPanel
 	    _panelUserPan.add(_textFieldUserPrenom);
 	    _panelUserPan.add(_labelUserMail);
 	    _panelUserPan.add(_textFieldUserMail);
-	    _panelUserPan.add(_checkBoxClient);
-
+	    _panelUserPan.add(_labelUserStatut);
+		_panelUserPan.add(_textFieldUserStatut);
 
 	    _panelReadPan.setBorder(BorderFactory.createTitledBorder("Tag lu"));
 	    _panelReadPan.setPreferredSize(new Dimension(300, 100));
@@ -159,16 +160,18 @@ public abstract class PanelWelcome extends JPanel
 		_textFieldUserMail.setEditable(false);
 	}
 	
-    public void updatePersonFields(String lastName, String firstName, String mail)
+    public void updatePersonFields(String lastName, String firstName, String mail, Boolean statut)
     {
 		_textFieldUserNom.setText(lastName);
 		_textFieldUserPrenom.setText(firstName);
 		_textFieldUserMail.setText(mail);
-        
-        if(lastName.equals("") && firstName.equals("") && mail.equals(""))
-        	_checkBoxClient.setSelected(false);
-        else
-        	_checkBoxClient.setSelected(true);
+		if(statut) {
+			_textFieldUserStatut.setText("A l'intérieur du parking");
+		} else if (!_textFieldUserNom.getText().isEmpty()) {
+			_textFieldUserStatut.setText("A l'extérieur du parking");
+		} else {
+			_textFieldUserStatut.setText("Non-client");
+		}
     }
 
     public void showOptionPane(String message, String titre, String type)

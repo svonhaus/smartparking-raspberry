@@ -12,9 +12,9 @@ object DataAdd
     Try(Http.post("http://smarking.azurewebsites.net/api/users").params(Map(("idTag", tag), ("lastname", userLastname), ("firstname", userFirstName), ("mail", userMail))).asString)
   }
   
-  def updateUser (idUser : String, userLastname: String, userFirstName: String, userMail: String) = 
+  def updateUser (idUser : String, tag : String, userLastname: String, userFirstName: String, userMail: String) =
   {
-    val json = new JSONObject().put("id", idUser).put("lastname", userLastname).put("firstname", userFirstName).put("mail", userMail).toString()
+    val json = new JSONObject().put("id", idUser).put("idTag", tag).put("lastname", userLastname).put("firstname", userFirstName).put("mail", userMail).toString()
     Try(Http.postData("http://smarking.azurewebsites.net/api/users", json).method("put").header("Content-Type", "application/json").asString)
   }
   

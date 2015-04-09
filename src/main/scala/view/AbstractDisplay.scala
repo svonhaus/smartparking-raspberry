@@ -4,12 +4,14 @@ import com.phidgets.event._
 import controller.{RFID, Barriere, InterfaceKit}
 import data.{DataAdd, DataGet}
 
+import scala.util.{Failure, Success}
+
 abstract class AbstractDisplay
 {
   val barriere = new Barriere()
 
   def messageTagLu(tag:String)
-  def messagePerson(lastName:String, firstName:String, user:String)
+  def messagePerson(lastName:String, firstName:String, mail:String, inTheParking : Boolean)
   def showMessage(message:String, titre:String, typeMessage:String)
 
   def initialize()
@@ -22,24 +24,20 @@ abstract class AbstractDisplay
       def tagGained(oe: TagGainEvent)
       {
         val tag = oe.getValue
-        println("\nTag Gained: " + tag)
 
         if (RFID.action != "write" && RFID.action != "update")
         {
           messageTagLu(tag)
-          val userOption = DataGet.found(tag)
-
-          userOption match
-          {
-            case Some(user) =>
-            {
-              messagePerson(user.lastName, user.firstName, user.mail)
+          try {
+              val user = DataGet.found(tag)
+              messagePerson(user.lastName, user.firstName, user.mail, user.inTheParking)
 
               if (RFID.action == "in" || RFID.action == "out")
               {
-                DataGet.searchTagUser(tag, RFID.action) match
+                val result = DataGet.searchTagUser(tag, RFID.action)
+                result match
                 {
-                  case true =>
+                  case "ok" =>
                   {
                     RFID.ledGreenOn()
                     barriere.ouverture
@@ -55,22 +53,19 @@ abstract class AbstractDisplay
                     barriere.fermeture
                     RFID.ledGreenOff()
                   }
-                  case false =>
+                  case _ =>
                   {
                     RFID.ledRedOn() //rouge si le tag est présent en BD
-                    showMessage("L'utilisateur ne peut pas passer", "Passage", "ERROR_MESSAGE")
+                    showMessage("L'utilisateur ne peut pas passer. \nCause : " + result, "Passage", "ERROR_MESSAGE")
                     RFID.ledRedOff()
                   }
                 }
               }
-
-            }
-            case None =>
-            {
-              messagePerson("", "", "")
-
+          } catch {
+            case exc : Exception => {
+              messagePerson("", "", "", false)
               RFID.ledRedOn() //rouge si le tag est présent en BD
-              showMessage("L'utilisateur n'existe pas", "Passage", "ERROR_MESSAGE")
+              showMessage(exc.getMessage, "Scan", "ERROR_MESSAGE")
               RFID.ledRedOff()
             }
           }

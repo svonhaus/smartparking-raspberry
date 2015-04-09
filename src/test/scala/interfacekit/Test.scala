@@ -54,7 +54,7 @@ object Test
     if (responseGet != "\"TagNotFound\"")
     {
       val temp = new JSONObject(responseGet)
-      val person = new Person(temp.get("id").toString, temp.get("firstname").toString, temp.get("lastname").toString, temp.get("mail").toString)
+      val person = new Person(temp.get("id").toString, temp.get("firstname").toString, temp.get("lastname").toString, temp.get("mail").toString, temp.get("inTheParking").toString.toBoolean)
 
       println(person.firstName)
     }
