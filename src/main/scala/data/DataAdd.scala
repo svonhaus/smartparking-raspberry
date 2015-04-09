@@ -17,6 +17,12 @@ object DataAdd
     val json = new JSONObject().put("id", idUser).put("idTag", tag).put("lastname", userLastname).put("firstname", userFirstName).put("mail", userMail).toString()
     Try(Http.postData("http://smarking.azurewebsites.net/api/users", json).method("put").header("Content-Type", "application/json").asString)
   }
+
+  def deleteUser (idUser : String) =
+  {
+    val json = new JSONObject().put("id", idUser).toString()
+    Try(Http.postData("http://smarking.azurewebsites.net/api/users", json).method("delete").header("Content-Type", "application/json").asString)
+  }
   
   def updateTagCarNotComeIn(tagRfid:String)
   {

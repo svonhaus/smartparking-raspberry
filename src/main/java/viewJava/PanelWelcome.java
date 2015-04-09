@@ -16,7 +16,7 @@ public abstract class PanelWelcome extends JPanel
 	private static final long serialVersionUID = 3862594280332085599L;
 	
 	protected JPanel _panelCenter, _panelSouth, _panelTop, _panelReadPan, _panelUserPan;
-	protected JButton _buttonIn, _buttonOut, _buttonOpen, _buttonClose, _buttonInscription, _buttonUpdate, _buttonUpdateTag, _buttonSearch;
+	protected JButton _buttonIn, _buttonOut, _buttonOpen, _buttonClose, _buttonInscription, _buttonUpdate, _buttonUpdateTag, _buttonSearch, _buttonDelete;
 	protected JLabel _labelChoix, _labelTag, _labelUserNom, _labelUserPrenom, _labelUserMail, _labelUserStatut;
 	protected JTextField _textFieldTagLu, _textFieldUserNom, _textFieldUserPrenom, _textFieldUserMail, _textFieldUserStatut;
 	protected JComboBox<String> _comboBox;
@@ -31,8 +31,9 @@ public abstract class PanelWelcome extends JPanel
 		
 		_buttonInscription = new JButton("Inscription");
 		_buttonUpdate = new JButton("Mise à jour");
-		_buttonSearch = new JButton("Rechercher un utilisateur par mail");
 		_buttonUpdateTag = new JButton("Mise à jour du tag");
+		_buttonSearch = new JButton("Rechercher un utilisateur par mail");
+		_buttonDelete = new JButton("Supprimer l'utilisateur");
 		_buttonIn = new JButton("Entrée parking");
 		_buttonOut = new JButton("Sortie Parking");
 		_buttonOpen = new JButton("Ouvrir barrière");
@@ -43,6 +44,7 @@ public abstract class PanelWelcome extends JPanel
         _buttonUpdate.addActionListener(updateListener());
 		_buttonUpdateTag.addActionListener(updateTagListener());
 		_buttonSearch.addActionListener(searchListener());
+		_buttonDelete.addActionListener(deleteListener());
 	    _buttonIn.addActionListener(inListener());
 	    _buttonOut.addActionListener(outListener());
 	    _buttonOpen.addActionListener(openListener());
@@ -116,7 +118,6 @@ public abstract class PanelWelcome extends JPanel
 
 	    _panelSouth.setPreferredSize(new Dimension(300, 70));
 	    _panelSouth.add(_buttonIn);
-
 	    _panelSouth.add(_buttonOut);
 	    _panelSouth.add(_buttonOpen);
 	    _panelSouth.add(_buttonClose);
@@ -125,32 +126,45 @@ public abstract class PanelWelcome extends JPanel
 
 	public void switchToUpdateMode()
 	{
+		_panelUserPan.remove(_labelUserStatut);
+		_panelUserPan.remove(_textFieldUserStatut);
+		_panelUserPan.revalidate();
+		_panelUserPan.repaint();
 		_panelSouth.removeAll();
 		_panelSouth.add(_buttonSearch);
+		_panelSouth.add(_buttonDelete);
 		_panelSouth.add(_buttonUpdate);
 		_panelSouth.add(_buttonUpdateTag);
 		_textFieldUserNom.setEditable(true);
 		_textFieldUserPrenom.setEditable(true);
 		_textFieldUserMail.setEditable(true);
+		_panelSouth.setPreferredSize(new Dimension(300, 110));
 		_panelSouth.revalidate();
 		_panelSouth.repaint();
 	}
 
 	public void switchToWriteMode() {
+		_panelUserPan.remove(_labelUserStatut);
+		_panelUserPan.remove(_textFieldUserStatut);
+		_panelUserPan.revalidate();
+		_panelUserPan.repaint();
         _panelSouth.removeAll();
         _panelSouth.add(_buttonInscription);
         _textFieldUserNom.setEditable(true);
         _textFieldUserPrenom.setEditable(true);
         _textFieldUserMail.setEditable(true);
+		_panelSouth.setPreferredSize(new Dimension(300, 50));
         _panelSouth.revalidate();
         _panelSouth.repaint();
 	}
 	
 	public void switchToReadMode()
 	{
+		_panelUserPan.add(_labelUserStatut);
+		_panelUserPan.add(_textFieldUserStatut);
+		_panelUserPan.revalidate();
+		_panelUserPan.repaint();
         _panelSouth.removeAll();
-        _panelSouth.revalidate();
-        _panelSouth.repaint();
 		_panelSouth.add(_buttonIn);
         _panelSouth.add(_buttonOut);
 		_panelSouth.add(_buttonOpen);
@@ -158,6 +172,9 @@ public abstract class PanelWelcome extends JPanel
         _textFieldUserNom.setEditable(false);
 		_textFieldUserPrenom.setEditable(false);
 		_textFieldUserMail.setEditable(false);
+		_panelSouth.setPreferredSize(new Dimension(300, 70));
+		_panelSouth.revalidate();
+		_panelSouth.repaint();
 	}
 	
     public void updatePersonFields(String lastName, String firstName, String mail, Boolean statut)
@@ -278,6 +295,18 @@ public abstract class PanelWelcome extends JPanel
 		};
 	}
 
+	public ActionListener deleteListener()
+	{
+		return new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				actionScalaDelete();
+			}
+		};
+	}
+
 	public ActionListener updateTagListener()
 	{
 		return new ActionListener()
@@ -309,6 +338,7 @@ public abstract class PanelWelcome extends JPanel
 	protected abstract void actionScalaWrite();
 	protected abstract void actionScalaUpdate();
 	protected abstract void actionScalaSearch();
+	protected abstract void actionScalaDelete();
 	protected abstract void actionScalaUpdateTag();
 	protected abstract void actionScalaForm();
 }

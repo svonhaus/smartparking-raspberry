@@ -1,7 +1,7 @@
 package view
 
 import controller._
-import data.DataGet
+import data.{DataAdd, DataGet}
 import model._
 import viewJava._
 import javax.swing._
@@ -53,6 +53,43 @@ class UserInterfaceDisplay extends AbstractDisplay
       barriere.fermeture()
     }
 
+    override def actionScalaDelete()
+    {
+      val mail = _textFieldUserMail.getText
+      if (!mail.matches(regexpMail)) {
+        showMessage("Veuillez encoder une adresse e-mail correcte.", "Suppresion", "ERROR_MESSAGE")
+      } else {
+        try {
+          val idUser = DataGet.found(mail.replace("@", "-at-").replace(".", "-dot-")).id
+          val reply = JOptionPane.showConfirmDialog(null, "Êtes-vous sûr de vouloir supprimer cet utilisateur ?", "Confirmation de suppression", JOptionPane.YES_NO_OPTION);
+          if (reply == JOptionPane.YES_OPTION)
+          {
+            DataAdd.deleteUser(idUser) match {
+              case Success(rep) => {
+                println(rep)
+                if(rep == "\"Ok\"") showMessage("Utilisateur supprimé.", "Suppresion", "WARNING_MESSAGE")
+                else println(rep)
+              }
+              case Failure(exc) => {
+                println(exc)
+              }
+            }
+          }
+        } catch {
+          case exc : Exception => {
+            messagePerson("", "", mail, false)
+            RFID.ledRedOn()
+            if(exc.getMessage == "Erreur réseau.") {
+              showMessage(exc.getMessage, "Suppression", "ERROR_MESSAGE")
+            } else {
+              showMessage("Ce mail ne correspond à aucun utilisateur", "Suppression", "ERROR_MESSAGE")
+            }
+            RFID.ledRedOff()
+          }
+        }
+      }
+    }
+
     override def actionScalaSearch() {
       val mail = _textFieldUserMail.getText
       if (!mail.matches(regexpMail)) {
@@ -64,7 +101,7 @@ class UserInterfaceDisplay extends AbstractDisplay
         } catch {
           case exc : Exception => {
             messagePerson("", "", mail, false)
-            RFID.ledRedOn() //rouge si le tag est présent en BD
+            RFID.ledRedOn()
             if(exc.getMessage == "Erreur réseau.") {
               showMessage(exc.getMessage, "Recherche", "ERROR_MESSAGE")
             } else {

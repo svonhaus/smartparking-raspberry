@@ -1,5 +1,6 @@
 package controller
 
+import java.net.UnknownHostException
 import java.util.UUID
 
 import com.phidgets._
@@ -126,7 +127,8 @@ object RFID
         }
       }
     } catch {
-      case exc : Exception => "Erreur lors de l'écriture du tag."
+      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                              else "Erreur lors de l'écriture du tag."
     }
   }
 
@@ -149,7 +151,8 @@ object RFID
         }
       }
     } catch {
-      case exc : Exception => exc.getMessage
+      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                              else "Erreur lors de l'écriture du tag."
     }
   }
 
@@ -168,7 +171,8 @@ object RFID
         }
       }
     } catch {
-      case exc : Exception => exc.getMessage
+      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                              else "Erreur lors de l'écriture du tag."
     }
   }
 
