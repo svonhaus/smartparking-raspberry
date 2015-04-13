@@ -8,13 +8,26 @@ import javax.swing._
 
 import scala.util.{Failure, Success}
 
+/**
+ * Démarrage de l'application sur une interface graphique en fenêtre.
+ * Les actions possibles sont :
+ *  no (par défaut / scan du tag et affichage des informations en fenêtre)
+ *  in (entrée dans le parking)
+ *  out (sortie du parking)
+ *  write (inscription d'un tag correspondant à un utilisateur avec ses informations)
+ *  update (mise à jour d'un utilisateur et de ses informations ou de son tag)
+ */
 class UserInterfaceDisplay extends AbstractDisplay
 {
+  //expression régulière d'un e-mail
   val regexpMail = """^[_A-Za-z0-9-+]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})$"""
 
+  /**
+   *  appel à une couche d'interface graphique
+   */
   val panelWelcome = new PanelWelcome
   {
-    override def actionScalaForm()
+    override def actionScalaForm() //Choix de l'action à effectuer
     {
       if (_comboBox.getSelectedItem == "Inscription")
       {
@@ -33,63 +46,41 @@ class UserInterfaceDisplay extends AbstractDisplay
       }
     }
 
+    /**
+     * change l'action en "in"
+     */
     override def actionScalaIn()
     {
       RFID.in()
     }
 
+    /**
+     * change l'action en "out"
+     */
     override def actionScalaOut()
     {
       RFID.out()
     }
 
+    /**
+     * Ouvre la barrière (par action sur le servoMotor)
+     */
     override def actionScalaOpen()
     {
       barriere.ouverture()
     }
 
+    /**
+     * Ferme la barrière (par action sur le servoMotor)
+     */
     override def actionScalaClose()
     {
       barriere.fermeture()
     }
 
-    override def actionScalaDelete()
-    {
-      val mail = _textFieldUserMail.getText
-      if (!mail.matches(regexpMail)) {
-        showMessage("Veuillez encoder une adresse e-mail correcte.", "Suppresion", "ERROR_MESSAGE")
-      } else {
-        try {
-          val idUser = DataGet.found(mail.replace("@", "-at-").replace(".", "-dot-")).id
-          val reply = JOptionPane.showConfirmDialog(null, "Êtes-vous sûr de vouloir supprimer cet utilisateur ?", "Confirmation de suppression", JOptionPane.YES_NO_OPTION);
-          if (reply == JOptionPane.YES_OPTION)
-          {
-            DataAdd.deleteUser(idUser) match {
-              case Success(rep) => {
-                println(rep)
-                if(rep == "\"Ok\"") showMessage("Utilisateur supprimé.", "Suppresion", "WARNING_MESSAGE")
-                else println(rep)
-              }
-              case Failure(exc) => {
-                println(exc)
-              }
-            }
-          }
-        } catch {
-          case exc : Exception => {
-            messagePerson("", "", mail, false)
-            RFID.ledRedOn()
-            if(exc.getMessage == "Erreur réseau.") {
-              showMessage(exc.getMessage, "Suppression", "ERROR_MESSAGE")
-            } else {
-              showMessage("Ce mail ne correspond à aucun utilisateur", "Suppression", "ERROR_MESSAGE")
-            }
-            RFID.ledRedOff()
-          }
-        }
-      }
-    }
-
+    /**
+     * Permet de rechercher un utilisateur et ses informations avec son adresse e-mail
+     */
     override def actionScalaSearch() {
       val mail = _textFieldUserMail.getText
       if (!mail.matches(regexpMail)) {
@@ -113,6 +104,9 @@ class UserInterfaceDisplay extends AbstractDisplay
       }
     }
 
+    /**
+     * Permet d'inscrire un utilisateur avec ses informations et inscrire un identifiant sur son tag RFID
+     */
     override def actionScalaWrite()
     {
       verifChamps match
@@ -142,6 +136,9 @@ class UserInterfaceDisplay extends AbstractDisplay
       }
     }
 
+    /**
+     * Permet de mettre à jour le tag de l'utilisateur (et ses informations) associé à l'adresse e-mail inscrite.
+     */
     override def actionScalaUpdateTag()
     {
       verifChamps match
@@ -171,6 +168,9 @@ class UserInterfaceDisplay extends AbstractDisplay
       }
     }
 
+    /**
+     * Permet de mettre à jour les informations de l'utilisateur associé à son tag lu.
+     */
     override def actionScalaUpdate()
     {
       val tag = _textFieldTagLu.getText
@@ -210,6 +210,10 @@ class UserInterfaceDisplay extends AbstractDisplay
       }
     }
 
+    /**
+     * Vérifie la valeur des champs de l'interface graphique.
+     * @return Un message d'erreur si il y a une, rien sinon.
+     */
     def verifChamps(): Option[String] =
     {
       if (_textFieldUserPrenom.getText.isEmpty() || _textFieldUserNom.getText.isEmpty() || _textFieldUserMail.getText.isEmpty())
@@ -240,11 +244,19 @@ class UserInterfaceDisplay extends AbstractDisplay
     panelWelcome.showOptionPane(message, titre, typeMessage)
   }
 
+  /**
+   * Appel à une couche d'interface graphique en plus de la méthode héritée
+   */
   override def initialize()
   {
     RFID.action = "no"
     super.initialize()
     val mainJFrame = new MainJFrame(panelWelcome)
   }
+
+  /**
+   * Pas d'action car on la choisit sur l'interface graphique
+   */
+  override def choisirAction() = {}
 
 }

@@ -3,7 +3,14 @@ package view
 import com.phidgets.event.{TagGainEvent, TagGainListener}
 import controller.RFID
 import data.{DataAdd, DataGet}
+import org.json.JSONObject
 
+import scalaj.http.Http
+
+/**
+ * Démarrage de l'application sans interface graphique et affichage de message en console.
+ * Les seules actions sont : in (l'entrée dans le parking) et out (la sortie du parking).
+ */
 class ConsoleDisplay extends AbstractDisplay
 {
   override def messageTagLu(tag:String)
@@ -27,4 +34,10 @@ class ConsoleDisplay extends AbstractDisplay
 
     println(titre + " : " + message)
   }
+
+  override def choisirAction(): Unit = {
+    val actionStr = Http.get("http://smarking.azurewebsites.net/api/global/rfid").asString
+    RFID.action = new JSONObject(actionStr).getString("value")
+  }
+
 }

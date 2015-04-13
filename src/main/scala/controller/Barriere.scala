@@ -6,6 +6,9 @@ package controller
 import com.phidgets._
 import com.phidgets.event._
 
+/**
+ * Classe controlleur pour initialiser et effectuer des actions sur le servoMotor (représenté par une barrière dans notre application)
+ */
 class Barriere 
 {
   var servo:AdvancedServoPhidget=null; //test
@@ -29,7 +32,7 @@ class Barriere
         try {
           servo.setPosition(0, 112.5)
         } catch {
-          case e : PhidgetException => println("Problème quand on le branche");
+          case e : PhidgetException => println("Problème de branchement");
         }
       }
     });
@@ -54,17 +57,21 @@ class Barriere
     servo.setPosition(0, 112.5);
     servo.setEngaged(0, true);
   }
-  
+
+  /**
+   * Ouverture de la barrière (rotation du ServoMotor vers la position 0)
+   */
   def ouverture():Unit ={
 		println("Ouverture barrière...");
 	  servo.setPosition(0, 0.0);
-		println("Barrière ouverte");
-	}	
-	
+	}
+
+  /**
+   * Fermeture de la barrière (rotation du ServoMotor vers la position 112.5)
+   */
 	def  fermeture() = {
 		println("Fermeture barrière...");
-	  servo.setPosition(0, 112.5);	
-		println("Barrière fermée");
+	  servo.setPosition(0, 112.5);
 	}
 	
 	def  close_system() = {
