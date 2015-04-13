@@ -6,6 +6,9 @@ import org.json.JSONObject
 
 import scalaj.http.Http
 
+/**
+ * Batterie de test de l'application
+ */
 object Test 
 {
   def main(args: Array[String]) 
