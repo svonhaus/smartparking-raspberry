@@ -64,5 +64,23 @@ object DataGet
     val actionStr = Http.get(apiUrl + "global/rfid").asString
     new JSONObject(actionStr).getString("value")
   }
-  
+
+  /**
+   *
+   * @return true si un client temporaire peut entrer dans le parking, false sinon
+   */
+  def tmpIn () : Boolean =
+  {
+      true
+  }
+
+  /**
+   *
+   * @param id : l'identifiant du ticket qrcode pour un client temporaire
+   * @return true si le client temporaire peut sortir du parking, c'est-à-dire si il a payé, false sinon
+   */
+  def tmpOut(id : String) : Boolean =
+  {
+      true
+  }
 }

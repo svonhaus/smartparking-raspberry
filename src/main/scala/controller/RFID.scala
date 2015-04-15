@@ -30,11 +30,11 @@ object RFID
     rfid.addAttachListener(new AttachListener() {
       def attached(ae: AttachEvent) {
         try {
-          (ae.getSource() match {
+          (ae.getSource match {
             case aeRFID: RFIDPhidget => aeRFID
           }).setAntennaOn(true)
   
-          (ae.getSource() match {
+          (ae.getSource match {
             case aeRFID: RFIDPhidget => aeRFID
           }).setLEDOn(true)
         } catch {
@@ -59,7 +59,7 @@ object RFID
   {
     rfid.addOutputChangeListener(new OutputChangeListener() {
       def outputChanged(oe: OutputChangeEvent) {
-        println(oe.getIndex + " change to " + oe.getState);
+        println(oe.getIndex + " change to " + oe.getState)
         }
      })
   }
@@ -108,15 +108,14 @@ object RFID
 
   /**
    * Appel à l'interface kit permettant d'attendre qu'une voiture passe devant les capteurs de distances, laissant la barrière ouverte.
-   * @param tag : le tag scanné de l'utilisateur
    * @return true si la voiture a pu passer, false sinon.
    */
-  def carPassed (tag : String) : Boolean =
+  def carPassed () : Boolean =
   {
     if (InterfaceKit.isAttached)
     {
       val interfaceKitWaitCar = new InterfaceKitWaitCar()
-      interfaceKitWaitCar.waitForCarToPassBarrier(tag)
+      interfaceKitWaitCar.waitForCarToPassBarrier()
     }
     else
     {
@@ -131,7 +130,7 @@ object RFID
   def genTag(): String = {
     val uuid = UUID.randomUUID()
     val time = System.currentTimeMillis() / 1000
-    time.toString() ++ uuid.toString.replace("-", "").substring(9, 23)
+    time.toString ++ uuid.toString.replace("-", "").substring(9, 23)
   }
 
   /**

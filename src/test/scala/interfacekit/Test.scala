@@ -13,7 +13,7 @@ object Test
 {
   def main(args: Array[String]) 
   {
-    test2()
+    testQRCode()
   }
   
   def test1()
@@ -38,7 +38,7 @@ object Test
     println("début test")
     
     val observableWaitCar = new InterfaceKitWaitCar()
-    observableWaitCar.waitForCarToPassBarrier("50");
+    observableWaitCar.waitForCarToPassBarrier();
     
     readLine()
     InterfaceKit.close
@@ -63,5 +63,27 @@ object Test
     }
 
     println("shit happened")
+  }
+
+  def test5()
+  {
+    InterfaceKit.waitForAttachment
+
+    println("début test SENSOR")
+
+    val oneSensor = new InterfaceKitOneSensor(4)
+    oneSensor.startSensor(100)
+    readLine()
+    oneSensor.stopSensor()
+    InterfaceKit.close
+    println("fin test")
+  }
+
+  def testQRCode(): Unit = {
+    val idGen = TouchSensor.genIdTmp()
+    TouchSensor.genQRCode(idGen) match {
+      case true => println("qr code généré")
+      case false => println("problème")
+    }
   }
 }

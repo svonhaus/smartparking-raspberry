@@ -76,7 +76,7 @@ abstract class AbstractDisplay
                     RFID.ledGreenOn()
                     barriere.ouverture
                     showMessage("L'utilisateur peut passer, faites entrer la voiture.", "Passage", "INFORMATION_MESSAGE")
-                    RFID.carPassed(tag) match /* Si détection que la voiture est bien passée, on enregistre l'action, sinon on affiche une erreur. */
+                    RFID.carPassed() match /* Si détection que la voiture est bien passée, on enregistre l'action, sinon on affiche une erreur. */
                     {
                       case true => {
                         DataAdd.addFlowParking(tag, RFID.action)

@@ -36,8 +36,7 @@ class ConsoleDisplay extends AbstractDisplay
   }
 
   override def choisirAction(): Unit = {
-    val actionStr = Http.get("http://smarking.azurewebsites.net/api/global/rfid").asString
-    RFID.action = new JSONObject(actionStr).getString("value")
+    RFID.action = DataGet.foundAction()
   }
 
 }

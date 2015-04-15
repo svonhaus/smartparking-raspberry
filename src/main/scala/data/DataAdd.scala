@@ -10,7 +10,7 @@ import scala.util._
  */
 object DataAdd 
 {
-
+  //url de base de webservice azure
   val apiUrl = "http://smartking.azurewebsites.net/api/"
 
   /**
@@ -29,6 +29,15 @@ object DataAdd
   }
 
   /**
+   *
+   * @param idGen : id généré pour les clients temporaires du parking
+   * @return
+   */
+  def registerTmp (idGen : String) = {
+    Try(Http.post(apiUrl + "users").param("id", idGen).asString)
+  }
+
+  /**
    * Met à jour les informations de l'utilisateur via le webservice ayant pour "id" idUser
    * @param idUser : L'identifiant id de l'utilisateur à mettre à jour via le webservice
    * @param tag : le tag de l'utilisateur
@@ -44,35 +53,56 @@ object DataAdd
     val json = new JSONObject().put("id", idUser).put("idTag", tag).put("lastname", userLastname).put("firstname", userFirstName).put("mail", userMail).toString()
     Try(Http.postData(apiUrl + "users", json).method("put").header("Content-Type", "application/json").asString)
   }
-  
-  def updateTagCarNotComeIn(tagRfid:String)
-  {
-    
-  }
-  
-  def updateTagCarComeIn(tagRfid:String)
-  {
-    
-  }
 
   /**
    * Enregistre l'action effectuée sur le webservice.
    * @param idTag : le tag de l'utilisateur étant passé à l'intérieur ou à l'extérieur du parking
    * @param action : action à faire, "in" : entrer dans le parking ou "out" : sortir du parking
    */
-  def addFlowParking(idTag : String, action : String)
+  def addFlowParking (idTag : String, action : String)
   {
     Try(Http.post(apiUrl + "FlowUsers").params("action" -> action).params("idTag" -> idTag).asString)
   }
-  
-  def addLeavingFromParking(tagRfid:String)
+
+  /**
+   * Enregistre l'action effectuée sur le webservice.
+   * @param id : l'id qrcode de l'utilisateur étant passé à l'intérieur ou à l'extérieur du parking
+   * @param action : action à faire, "in" : entrer dans le parking ou "out" : sortir du parking
+   */
+  def addFlowParkingTmp (id : String, action : String)
   {
-    
+    //Try(Http.post(apiUrl + "FlowUsers").params("action" -> action).params("id" -> id).asString)
   }
-  
-  def addTemperatureInWebservice()
+
+  /**
+   * Mise à jour via le webservice de la température du parking.
+   * @param temp : température du parking ayant changée
+   */
+  def updateTemp(temp : Double)
   {
-    //val request = Http.post(apiUrl + "users").
+    val json = new JSONObject().put("temperature", temp).toString()
+    Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)
   }
-  
+
+  /**
+   * Mise à jour via le webservice de la place de parking.
+   * @param num_place : température du parking ayant changée
+   * @param taken : true si la place est prise, false sinon
+   */
+  def updateParkingSpace(num_place : Int, taken : Boolean)
+  {
+    /*val json = new JSONObject().put("space", temp).toString()
+    Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)*/
+  }
+
+  /**
+   * Mise à jour via le webservice de la détection de tremblement dans parking.
+   * @param vibration : vibration du parking ayant changée et pouvant causer un tremblement de terre
+   */
+  def updateVibration(vibration : Double)
+  {
+    /*val json = new JSONObject().put("vibration", temp).toString()
+    Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)*/
+  }
+
 }

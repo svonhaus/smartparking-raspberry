@@ -60,13 +60,13 @@ public class InterfaceKitControl {
             }
         });
 
-        this.phInter.addSensorChangeListener(new SensorChangeListener(){
+        this.phInter.addSensorChangeListener(new SensorChangeListener() {
 
             @Override
             public void sensorChanged(SensorChangeEvent arg0) {
                 // TODO Auto-generated method stub
                 //System.out.println("Changement... : "+ arg0.getIndex());
-                if (arg0.getIndex()==Config.TEMP_SENSOR){
+                if (arg0.getIndex() == Config.TEMP_SENSOR) {
                     try {
                         System.out.println("Changement de température");
                         System.out.println(get_temp());
@@ -79,7 +79,7 @@ public class InterfaceKitControl {
                     }
                 }
 
-                if (arg0.getIndex()==Config.MAGNETIC_SENSOR){
+                if (arg0.getIndex() == Config.MAGNETIC_SENSOR) {
                     try {
                         System.out.println("Changement de magnetisme");
                         System.out.println(get_magneticSensor());
@@ -91,7 +91,7 @@ public class InterfaceKitControl {
                     }
                 }
 
-                if (arg0.getIndex()==Config.TOUCH_SENSOR){
+                if (arg0.getIndex() == Config.TOUCH_SENSOR) {
                     try {
                         System.out.println("Changement de touché");
                         System.out.println(get_touchSensor());
@@ -106,18 +106,16 @@ public class InterfaceKitControl {
             }
 
 
-
-
         });
 
         //temp=new TemperatureContr();
         this.phInter.openAny();
-        System.out.println("waiting for PhodgetInterfaceSensor attachment...");
+        System.out.println("waiting for PhidgetInterfaceSensor attachment...");
         this.phInter.waitForAttachment();
         this.phInter.setOutputState(7, true);
         this.phInter.setOutputState(6, true);
-        this.phInter.setOutputState(4, true);
         this.phInter.setOutputState(5, true);
+        this.phInter.setOutputState(4, true);
         //this.phInter.setEngaged(0, true);
 
     }
