@@ -42,7 +42,7 @@ class InterfaceKitWaitCar
     val endWaitCar = Promise[Boolean]()
     val onNextCoupleWaitCar: ((Option[Int], Option[Int])) => Unit =
     {
-      case (Some(result1), Some(result2)) => if(!endWaitCar.isCompleted) endWaitCar.success(true)
+      case (Some(result1), _) => if(!endWaitCar.isCompleted) endWaitCar.success(true)
       case _ =>
     }
 
