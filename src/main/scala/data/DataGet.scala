@@ -2,6 +2,7 @@ package data
 
 import java.net.UnknownHostException
 
+import config.Config
 import org.json._
 import scalaj.http._
 import model._
@@ -21,7 +22,7 @@ object DataGet
   {
     val url = apiUrl + "users/" + tagOrMail
     try {
-      val responseGet = Http.get(url).asString
+      val responseGet = Http.get(url).header("Authorization", "Bearer "+Config.token).asString
       responseGet match {
         case "\"TagNotFound\"" => throw new Exception("Le tag ne correspond à aucun utilisateur.")
         case "\"Expired\"" => throw new Exception("Le tag est expiré.")
@@ -44,7 +45,7 @@ object DataGet
    */
   def searchTagUser (tag : String, action : String) : String =
   {
-    val responseGet = Http.get(apiUrl + "Tags/"+ action +"/" + tag).asString
+    val responseGet = Http.get(apiUrl + "Tags/"+ action +"/" + tag).header("Authorization", "Bearer "+Config.token).asString
     responseGet match {
       case "\"Ok\"" => "ok"
       case "\"Full\"" => "Le parking est rempli."
@@ -61,7 +62,7 @@ object DataGet
    */
   def foundAction () : String = 
   {
-    val actionStr = Http.get(apiUrl + "global/rfid").asString
+    val actionStr = Http.get(apiUrl + "global/rfid").header("Authorization", "Bearer "+Config.token).asString
     new JSONObject(actionStr).getString("value")
   }
 

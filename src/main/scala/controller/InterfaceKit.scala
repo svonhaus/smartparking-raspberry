@@ -20,6 +20,7 @@ object InterfaceKit
   addAttachListener
   addDetachListener
   openAny
+  waitForAttachment
 
   for(i <- 4 to 7) allumer_led(i)
 
@@ -98,19 +99,21 @@ object InterfaceKit
               val temp = (getSensorValue(Config.TEMP_SENSOR) * 0.2222) - 61.111
               println(temp)
               DataAdd.updateTemp(temp)
-              check_problem_temp(temp)
+              //check_problem_temp(temp)
             }
             case Config.MAGNETIC_SENSOR => {
               //si changement, envoi de la place et si elle est prise ou non, allume la led de la place et recalcule les trajets
               println("Changement de magnetisme")
               val result = getSensorValue(Config.MAGNETIC_SENSOR)
+              println(result)
               DataAdd.updateParkingSpace(Config.PLACE_NUM, true) //TODO
-              allumer_led(Config.LED_PLACE)
+              //allumer_led(Config.LED_PLACE)
             }
             case Config.TOUCH_SENSOR => {
               //si changement, envoi de la place et si elle est prise ou non, allume la led de la place et recalcule les trajets
               println("Changement de touché")
               val touchResult = getSensorValue(Config.TOUCH_SENSOR)
+              println(touchResult)
               if(!touch && touchResult != 0) {
                 TouchSensor.touchControl(interfaceKit)
                 touch = true
@@ -121,8 +124,9 @@ object InterfaceKit
               println("Changement de vibration")
               val vibration = getSensorValue(Config.VIBRATION_SENSOR)
               println(vibration)
-              check_problem_temp(vibration)
+              //check_problem_vibration(vibration)
             }
+            case _ =>
         }
       }
     })) match {
@@ -140,7 +144,7 @@ object InterfaceKit
   }
 
   def check_problem_temp(temp : Double) {
-    if (temp >= 30) {
+    if (temp >= 40.0) {
       faire_clignoter(Config.LED_TEMP_PROBLEM)
     } else {
       eteindre_led(Config.LED_TEMP_PROBLEM)
@@ -148,7 +152,7 @@ object InterfaceKit
   }
 
   def check_problem_vibration(vibration : Double) {
-    if (vibration >= 100) { //TODO
+    if (vibration >= 3000) { //TODO
       DataAdd.updateVibration(vibration)
       faire_clignoter(Config.LED_VIBRATION_PROBLEM)
     } else {

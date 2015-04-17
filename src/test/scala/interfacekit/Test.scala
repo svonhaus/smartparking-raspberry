@@ -13,7 +13,7 @@ object Test
 {
   def main(args: Array[String]) 
   {
-    testQRCode()
+    test1
   }
   
   def test1()
@@ -85,5 +85,13 @@ object Test
       case true => println("qr code généré")
       case false => println("problème")
     }
+  }
+
+  def testSensorListener(): Unit = {
+    println("debut test")
+    InterfaceKit.addSensorChangeListener
+    readLine()
+    InterfaceKit.close
+    println("fin test")
   }
 }

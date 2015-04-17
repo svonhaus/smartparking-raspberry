@@ -34,6 +34,7 @@ public class main2 {
 		
 		System.out.println("Chargement init...");
 		JFrame fr= new JFrame();
+		fr.setSize(350, 550);
 		JPanel jPanel1 = new JPanel();
 		JButton but1 = new JButton("Ouvrir");
 		jPanel1.add(but1);

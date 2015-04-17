@@ -49,7 +49,6 @@ abstract class AbstractDisplay
    */
   def initialize()
   {
-    InterfaceKit.openAny
     barriere.Barriere()
 
     RFID.rfid.addTagGainListener(new TagGainListener() //attend un scan de tag RFID

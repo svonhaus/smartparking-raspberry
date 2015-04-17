@@ -1,5 +1,6 @@
 package data
 
+import config.Config
 import org.json.JSONObject
 
 import scalaj.http._
@@ -8,10 +9,17 @@ import scala.util._
 /**
  * Objet permettant d'envoyer des données sur le webservice.
  */
-object DataAdd 
+object DataAdd
 {
   //url de base de webservice azure
   val apiUrl = "http://smartking.azurewebsites.net/api/"
+
+  /** Permet une authentification sur le webservice afin de faire les requêtes privée par-après
+    * @return un objet json contenant le token
+    */
+  def auth ()  = {
+    Try(Http.post("http://smartking.azurewebsites.net/Token").params(Map(("grant_type", "password"), ("username", "laurent@phidgets.com"), ("password", "Password1!"))).asString)
+  }
 
   /**
    * Inscris l'utilisateur via le webservice
@@ -25,7 +33,7 @@ object DataAdd
    */
   def register (tag: String, userLastname: String, userFirstName: String, userMail: String): Try[String] =
   {
-    Try(Http.post(apiUrl + "users").params(Map(("idTag", tag), ("lastname", userLastname), ("firstname", userFirstName), ("mail", userMail))).asString)
+    Try(Http.post(apiUrl + "Account/Register").header("Authorization", "Bearer "+Config.token).params(Map(("TagId", tag), ("lastname", userLastname), ("firstname", userFirstName), ("Email", userMail))).asString)
   }
 
   /**
@@ -34,7 +42,8 @@ object DataAdd
    * @return
    */
   def registerTmp (idGen : String) = {
-    Try(Http.post(apiUrl + "users").param("id", idGen).asString)
+    Try("temp")
+    //Try(Http.post(apiUrl + "users").param("id", idGen).asString)
   }
 
   /**
@@ -51,7 +60,7 @@ object DataAdd
   def updateUser (idUser : String, tag : String, userLastname: String, userFirstName: String, userMail: String) =
   {
     val json = new JSONObject().put("id", idUser).put("idTag", tag).put("lastname", userLastname).put("firstname", userFirstName).put("mail", userMail).toString()
-    Try(Http.postData(apiUrl + "users", json).method("put").header("Content-Type", "application/json").asString)
+    Try(Http.postData(apiUrl + "users", json).header("Authorization", "Bearer "+Config.token).method("put").header("Content-Type", "application/json").asString)
   }
 
   /**
@@ -61,7 +70,7 @@ object DataAdd
    */
   def addFlowParking (idTag : String, action : String)
   {
-    Try(Http.post(apiUrl + "FlowUsers").params("action" -> action).params("idTag" -> idTag).asString)
+    Try(Http.post(apiUrl + "FlowUsers").header("Authorization", "Bearer "+Config.token).params("action" -> action).params("idTag" -> idTag).asString)
   }
 
   /**
@@ -80,8 +89,8 @@ object DataAdd
    */
   def updateTemp(temp : Double)
   {
-    val json = new JSONObject().put("temperature", temp).toString()
-    Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)
+    /*val json = new JSONObject().put("temperature", temp).toString()
+    Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)*/
   }
 
   /**

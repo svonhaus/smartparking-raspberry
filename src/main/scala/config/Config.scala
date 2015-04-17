@@ -25,4 +25,6 @@ object Config {
    val VIBRATION_SENSOR: Int = 5
 
    val PLACE_NUM = 1 //numéro de la place sur laquelle est placé le capteur magnétique
+
+   var token = ""
 }

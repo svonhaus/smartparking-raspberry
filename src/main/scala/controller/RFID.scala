@@ -166,6 +166,7 @@ object RFID
           else "Cet e-mail est déjà utilisé."
         }
         case Failure(exc) => {
+          println(exc)
           "Erreur réseau"
         }
       }
@@ -189,7 +190,7 @@ object RFID
       val idUser = DataGet.found(person.mail.replace("@", "-at-").replace(".", "-dot-")).id
       DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match {
         case Success(rep) => {
-          println("\nWrite Tag : " + tag )
+          println("\nWrite Tag : " + tag)
           if(rep == "\"Ok\"") "ok"
           else "Cet e-mail est déjà utilisé."
         }

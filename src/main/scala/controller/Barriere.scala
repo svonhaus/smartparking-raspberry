@@ -15,7 +15,7 @@ class Barriere
   val open:Boolean=false;
   val close:Boolean=false;
   
-  def Barriere() = {
+  def Barriere() = {/*
     servo= new AdvancedServoPhidget();
     /**
      * Régler les paramètres du servo motor
@@ -46,7 +46,7 @@ class Barriere
         println(oe);
       }
     });
-    config();
+    config();*/
   }
 	
   def config() {
@@ -63,7 +63,7 @@ class Barriere
    */
   def ouverture():Unit ={
 		println("Ouverture barrière...");
-	  servo.setPosition(0, 0.0);
+	  //servo.setPosition(0, 0.0);
 	}
 
   /**
@@ -71,7 +71,7 @@ class Barriere
    */
 	def  fermeture() = {
 		println("Fermeture barrière...");
-	  servo.setPosition(0, 112.5);
+	  //servo.setPosition(0, 112.5);
 	}
 	
 	def  close_system() = {
