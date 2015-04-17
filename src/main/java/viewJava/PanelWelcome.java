@@ -8,19 +8,21 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
+/**
+ * Classe d'interface graphique permettant d'intéragir avec un utilisateur (employé).
+ * Affichage des informations d'un utilisateur scannant son tag RFID ou par l'intermédiaire de son adresse mail.
+ * Inscription ou mise à jour des informations ou du tag d'un utilisateur.
+ * Intéraction avec des bouttons effectuant certaines actions.
+ */
 public abstract class PanelWelcome extends JPanel 
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3862594280332085599L;
 	
 	protected JPanel _panelCenter, _panelSouth, _panelTop, _panelReadPan, _panelUserPan;
 	protected JButton _buttonIn, _buttonOut, _buttonOpen, _buttonClose, _buttonInscription, _buttonUpdate, _buttonUpdateTag, _buttonSearch;
-	protected JLabel _labelChoix, _labelTag, _labelUserNom, _labelUserPrenom, _labelUserMail;
-	protected JTextField _textFieldTagLu, _textFieldUserNom, _textFieldUserPrenom, _textFieldUserMail;
+	protected JLabel _labelChoix, _labelTag, _labelUserNom, _labelUserPrenom, _labelUserMail, _labelUserStatut;
+	protected JTextField _textFieldTagLu, _textFieldUserNom, _textFieldUserPrenom, _textFieldUserMail, _textFieldUserStatut;
 	protected JComboBox<String> _comboBox;
-	protected JCheckBox _checkBoxClient;
 	
 	public PanelWelcome()
 	{
@@ -32,8 +34,8 @@ public abstract class PanelWelcome extends JPanel
 		
 		_buttonInscription = new JButton("Inscription");
 		_buttonUpdate = new JButton("Mise à jour");
-		_buttonSearch = new JButton("Rechercher un utilisateur par mail");
 		_buttonUpdateTag = new JButton("Mise à jour du tag");
+		_buttonSearch = new JButton("Rechercher un utilisateur par mail");
 		_buttonIn = new JButton("Entrée parking");
 		_buttonOut = new JButton("Sortie Parking");
 		_buttonOpen = new JButton("Ouvrir barrière");
@@ -54,9 +56,6 @@ public abstract class PanelWelcome extends JPanel
 	    _comboBox.addItem("Inscription");
 		_comboBox.addItem("Mise à jour");
 	    _comboBox.addActionListener(formListener());
-	    
-		_labelTag = new JLabel();
-		_textFieldTagLu = new JTextField();
 
 		_labelUserNom = new JLabel();
 	    _labelUserNom.setText("Nom : ");
@@ -76,12 +75,17 @@ public abstract class PanelWelcome extends JPanel
 	    _textFieldUserMail.setEditable(false);
 	    _textFieldUserMail.setPreferredSize(new Dimension(300, 30));
 
+		_labelTag = new JLabel();
 	    _labelTag.setText("Tag : ");
+		_textFieldTagLu = new JTextField();
 	    _textFieldTagLu.setEditable(false);
 	    _textFieldTagLu.setPreferredSize(new Dimension(300, 30));
-	    
-		_checkBoxClient = new JCheckBox("Client");
-	    _checkBoxClient.setEnabled(false);
+
+		_labelUserStatut = new JLabel();
+		_labelUserStatut.setText("Statut : ");
+		_textFieldUserStatut = new JTextField();
+		_textFieldUserStatut.setEditable(false);
+		_textFieldUserStatut.setPreferredSize(new Dimension(300, 30));
 
 	    setBackground(Color.GRAY);
 	    setLayout(new BorderLayout());
@@ -98,8 +102,8 @@ public abstract class PanelWelcome extends JPanel
 	    _panelUserPan.add(_textFieldUserPrenom);
 	    _panelUserPan.add(_labelUserMail);
 	    _panelUserPan.add(_textFieldUserMail);
-	    _panelUserPan.add(_checkBoxClient);
-
+	    _panelUserPan.add(_labelUserStatut);
+		_panelUserPan.add(_textFieldUserStatut);
 
 	    _panelReadPan.setBorder(BorderFactory.createTitledBorder("Tag lu"));
 	    _panelReadPan.setPreferredSize(new Dimension(300, 100));
@@ -115,7 +119,6 @@ public abstract class PanelWelcome extends JPanel
 
 	    _panelSouth.setPreferredSize(new Dimension(300, 70));
 	    _panelSouth.add(_buttonIn);
-
 	    _panelSouth.add(_buttonOut);
 	    _panelSouth.add(_buttonOpen);
 	    _panelSouth.add(_buttonClose);
@@ -124,6 +127,10 @@ public abstract class PanelWelcome extends JPanel
 
 	public void switchToUpdateMode()
 	{
+		_panelUserPan.remove(_labelUserStatut);
+		_panelUserPan.remove(_textFieldUserStatut);
+		_panelUserPan.revalidate();
+		_panelUserPan.repaint();
 		_panelSouth.removeAll();
 		_panelSouth.add(_buttonSearch);
 		_panelSouth.add(_buttonUpdate);
@@ -131,25 +138,33 @@ public abstract class PanelWelcome extends JPanel
 		_textFieldUserNom.setEditable(true);
 		_textFieldUserPrenom.setEditable(true);
 		_textFieldUserMail.setEditable(true);
+		_panelSouth.setPreferredSize(new Dimension(300, 70));
 		_panelSouth.revalidate();
 		_panelSouth.repaint();
 	}
 
 	public void switchToWriteMode() {
+		_panelUserPan.remove(_labelUserStatut);
+		_panelUserPan.remove(_textFieldUserStatut);
+		_panelUserPan.revalidate();
+		_panelUserPan.repaint();
         _panelSouth.removeAll();
         _panelSouth.add(_buttonInscription);
         _textFieldUserNom.setEditable(true);
         _textFieldUserPrenom.setEditable(true);
         _textFieldUserMail.setEditable(true);
+		_panelSouth.setPreferredSize(new Dimension(300, 50));
         _panelSouth.revalidate();
         _panelSouth.repaint();
 	}
 	
 	public void switchToReadMode()
 	{
+		_panelUserPan.add(_labelUserStatut);
+		_panelUserPan.add(_textFieldUserStatut);
+		_panelUserPan.revalidate();
+		_panelUserPan.repaint();
         _panelSouth.removeAll();
-        _panelSouth.revalidate();
-        _panelSouth.repaint();
 		_panelSouth.add(_buttonIn);
         _panelSouth.add(_buttonOut);
 		_panelSouth.add(_buttonOpen);
@@ -157,18 +172,23 @@ public abstract class PanelWelcome extends JPanel
         _textFieldUserNom.setEditable(false);
 		_textFieldUserPrenom.setEditable(false);
 		_textFieldUserMail.setEditable(false);
+		_panelSouth.setPreferredSize(new Dimension(300, 70));
+		_panelSouth.revalidate();
+		_panelSouth.repaint();
 	}
 	
-    public void updatePersonFields(String lastName, String firstName, String mail)
+    public void updatePersonFields(String lastName, String firstName, String mail, Boolean statut)
     {
 		_textFieldUserNom.setText(lastName);
 		_textFieldUserPrenom.setText(firstName);
 		_textFieldUserMail.setText(mail);
-        
-        if(lastName.equals("") && firstName.equals("") && mail.equals(""))
-        	_checkBoxClient.setSelected(false);
-        else
-        	_checkBoxClient.setSelected(true);
+		if(statut) {
+			_textFieldUserStatut.setText("A l'intérieur du parking");
+		} else if (!_textFieldUserNom.getText().isEmpty()) {
+			_textFieldUserStatut.setText("A l'extérieur du parking");
+		} else {
+			_textFieldUserStatut.setText("Non-client");
+		}
     }
 
     public void showOptionPane(String message, String titre, String type)
@@ -298,7 +318,10 @@ public abstract class PanelWelcome extends JPanel
 			}
 		};
 	}
-	
+
+	/**
+	 * Listener attendant une action après appui sur un boutton.
+	 */
 	protected abstract void actionScalaIn();
 	protected abstract void actionScalaOut();
 	protected abstract void actionScalaOpen();

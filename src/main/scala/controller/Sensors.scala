@@ -20,7 +20,21 @@ object Sensors
     if(x < 500) Some(1) else Some(0)
   }
 
+  val functionTouchSensor = (x: Int) =>
+  {
+    if(x>0) Some(x) else None
+  }
+
+  val functionTempSensor = (x: Int) =>
+  {
+    Some(((x*0.2222) - 61.111).toInt)
+  }
+
   val listAnalogSensors= List(
     (0, (((x:Int) => functionSharpSensor(x)), (3, 200.toLong))), // (indexSensor, (functionToComputeAnalogValue, (treshold, interval)))
-    (1, (((x:Int) => functionSharpSensor(x)), (3, 200.toLong))))
+    (1, (((x:Int) => functionSharpSensor(x)), (3, 200.toLong))),
+    (2, (((x:Int) => functionTempSensor(x)), (3, 200.toLong))),
+    (3, (((x:Int) => functionTouchSensor(x)), (3, 200.toLong))),
+    (4, (((x:Int) => functionTouchSensor(x)), (3, 200.toLong))),
+    (5, (((x:Int) => functionTouchSensor(x)), (3, 200.toLong))))
 }

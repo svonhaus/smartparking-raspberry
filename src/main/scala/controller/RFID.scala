@@ -1,5 +1,6 @@
 package controller
 
+import java.net.UnknownHostException
 import java.util.UUID
 
 import com.phidgets._
@@ -10,30 +11,30 @@ import model._
 import scala.util._
 
 /**
- * @author laurent
+ * Classe controller RFID permettant d'initaliser, configurer le RFID et d'agir et de récupérer des informations sur le tag RFID
+ * Relai entre la couche Vue permettant les intéractions et la couche Data permettant les échanges de données avec le WebService azur
  */
 object RFID 
 {
-  val rfid: RFIDPhidget = new RFIDPhidget()
-  addAttachListener()
-  tagLossListener()
-  addOutputChangeListener()
+  val rfid: RFIDPhidget = new RFIDPhidget() // initialisation du RFID phidgets
+  addAttachListener() //détecte l'attachement du RFID
+  tagLossListener() //détection d'une perte de tag RFID
+  addOutputChangeListener() //détection d'un changement d'état d'output (led)
   openAny()
   waitForAttachement()
   
   var action = "no"
-  var inscription = false
 
   def addAttachListener()
   {
     rfid.addAttachListener(new AttachListener() {
       def attached(ae: AttachEvent) {
         try {
-          (ae.getSource() match {
+          (ae.getSource match {
             case aeRFID: RFIDPhidget => aeRFID
           }).setAntennaOn(true)
   
-          (ae.getSource() match {
+          (ae.getSource match {
             case aeRFID: RFIDPhidget => aeRFID
           }).setLEDOn(true)
         } catch {
@@ -48,7 +49,6 @@ object RFID
   {
     rfid.addTagLossListener(new TagLossListener() {
       def tagLost(oe: TagLossEvent) {
-        println("Tag Loss : " + oe.getValue());
         rfid.setOutputState(0, false)
         rfid.setOutputState(1, false)
       }
@@ -59,7 +59,7 @@ object RFID
   {
     rfid.addOutputChangeListener(new OutputChangeListener() {
       def outputChanged(oe: OutputChangeEvent) {
-        println(oe.getIndex + " change to " + oe.getState);
+        println(oe.getIndex + " change to " + oe.getState)
         }
      })
   }
@@ -72,107 +72,159 @@ object RFID
       rfid.waitForAttachment(1000)
   }
 
+  /**
+   * Change l'action à effectuer (entrée dans le parking)
+   */
   def in() {
     action = "in"
   }
 
+  /**
+   * Change l'action à effectuer (sortie du parkingà
+   */
   def out() {
     action = "out"
   }
 
-  //update tout sauf le taf
-  def updateUser (tag : String, person : Person) = 
+  /**
+   * Change l'état de l'output 0 à true (représenté par un led allumé rouge)
+   */
+  def ledRedOn() = rfid.setOutputState(0, true)
+
+  /**
+   * Change l'état de l'output 0 à false (représenté par un led éteint)
+   */
+  def ledRedOff() = rfid.setOutputState(0, false)
+
+  /**
+   * Change l'état de l'output 1 à true (représenté par un led allumé vert)
+   */
+  def ledGreenOn() = rfid.setOutputState(1, true)
+
+  /**
+   * Change l'état de l'output 1 à false (représenté par un led éteint)
+   */
+  def ledGreenOff() = rfid.setOutputState(1, false)
+
+  /**
+   * Appel à l'interface kit permettant d'attendre qu'une voiture passe devant les capteurs de distances, laissant la barrière ouverte.
+   * @return true si la voiture a pu passer, false sinon.
+   */
+  def carPassed () : Boolean =
   {
-    val user = DataGet.found(tag)
-    val idUser = user match {
-      case Some(person) => person.id
-      case None => throw new Exception("Utilisateur non-existant")
+    if (InterfaceKit.isAttached)
+    {
+      val interfaceKitWaitCar = new InterfaceKitWaitCar()
+      interfaceKitWaitCar.waitForCarToPassBarrier()
     }
-    DataAdd.updateUser(idUser, person.lastName, person.firstName, person.mail) match {
-      case Success(rep) => {
-        true
-      }
-      case Failure(exc) => {
-        false
-      }
+    else
+    {
+      println("You must attach the interfaceKit")
+      false
     }
   }
 
-  //update tout en regénérant un tag (si l'user perd son tag ...)
-  def updateUser (person : Person) =
+  /**
+   * @return un tag généré par concaténation d'un UUID aléatoire et de l'instant de génération.
+   */
+  def genTag(): String = {
+    val uuid = UUID.randomUUID()
+    val time = System.currentTimeMillis() / 1000
+    time.toString ++ uuid.toString.replace("-", "").substring(9, 23)
+  }
+
+  /**
+   * Enregistre un utilisateur en appellant la couche Data
+   * @param tag : le tag généré pour l'utilisateur à inscrire
+   * @param userLastname : le nom de l'utilisateur à inscrire
+   * @param userFirstName : le prénom de l'utilisateur à inscrire
+   * @param userMail : l'adresse mail de l'utilisateur à inscrire
+   * @return "ok" si l'utilisateur a pu être enregistré avec ses informations,
+   *         "AlreadyRegistred" si l'utilisateur n'a pu pas être enregistré parce qu'il a utilisé une adresse e-mail déjà enregistré,
+   *         ou une exception dans les autres cas, l'utilisateur n'étant pas enregistré.
+   */
+  def register(tag: String, userLastname: String, userFirstName: String, userMail: String) =
+  {
+    DataAdd.register(tag, userLastname, userFirstName, userMail)
+  }
+
+  /**
+   * Inscription de l'utilisateur via le webservice et d'un identifiant sur son tag RFID
+   * @param person l'utilisateur voulant s'inscrire
+   * @return "ok" si l'utilisateur a été correctement inscrit, un message d'erreur adapté sinon.
+   */
+  def inscriptionTag(person:Person) : String =
+  {
+    val tag = genTag()
+
+    try {
+      rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur le tag
+      register(tag, person.lastName, person.firstName, person.mail) match {
+        case Success(rep) => {
+          println("\nWrite Tag : " + tag )
+          if(rep == "\"Ok\"") "ok"
+          else "Cet e-mail est déjà utilisé."
+        }
+        case Failure(exc) => {
+          "Erreur réseau"
+        }
+      }
+    } catch {
+      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                              else "Erreur lors de l'écriture du tag."
+    }
+  }
+
+  /**
+   * Met à jour l'utilisateur person tout en regénérant un tag (utilisé si l'user perd son tag)
+   * @param person : l'utilisateur désirant récupérer un tag RFID
+   * @return "ok" si l'utilisateur a été correctement mis à jour, un message d'erreur adapté sinon.
+   */
+  def updateUser (person : Person) : String =
   {
     val tag = genTag()
 
     try {
       rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur la tag
-
-      val user = DataGet.found(tag)
-      val idUser = user match {
-        case Some(person) => person.id
-        case None => throw new Exception("Utilisateur non-existant")
-      }
-      DataAdd.updateUser(idUser, person.lastName, person.firstName, person.mail) match {
+      val idUser = DataGet.found(person.mail.replace("@", "-at-").replace(".", "-dot-")).id
+      DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match {
         case Success(rep) => {
-          true
+          println("\nWrite Tag : " + tag )
+          if(rep == "\"Ok\"") "ok"
+          else "Cet e-mail est déjà utilisé."
         }
         case Failure(exc) => {
-          false
+          "Erreur réseau."
         }
       }
     } catch {
-      case exc : Exception => false
+      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                              else "Erreur lors de l'écriture du tag."
     }
   }
-  
-  def register(tag: String, userLastname: String, userFirstName: String, userMail: String) = 
+
+  /**
+   * Met à jour l'utilisateur person sans regénérer un tag (utilisé si l'user désire mettre à jour ses informations)
+   * @param person : l'utilisateur désirant modifier ses informations
+   * @return "ok" si l'utilisateur a été correctement mis à jour, un message d'erreur adapté sinon.
+   */
+  def updateUser (tag : String, person : Person) : String =
   {
-    DataAdd.register(tag, userLastname, userFirstName, userMail)
-  }
-  
-  def inscriptionTag(person:Person): Boolean =
-  {
-    val tag = genTag()
-    
     try {
-        rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur la tag       
-        register(tag, person.lastName, person.firstName, person.mail) match {
-          case Success(rep) => {
-            println("\nWrite Tag : " + tag)
-            true
-          }
-          case Failure(exc) => {
-            false
-          }
+      val idUser = DataGet.found(tag).id
+      DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match {
+        case Success(rep) => {
+          if(rep == "\"Ok\"") "ok"
+          else "Cet e-mail est déjà utilisé."
         }
+        case Failure(exc) => {
+          "Erreur réseau."
+        }
+      }
     } catch {
-      case exc : Exception => false
+      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                              else "Erreur lors de l'écriture du tag."
     }
-  }
-
-  def ledRedOn() = rfid.setOutputState(0, true)
-  def ledRedOff() = rfid.setOutputState(0, false)
-
-  def ledGreenOn() = rfid.setOutputState(1, true)
-  def ledGreenOff() = rfid.setOutputState(1, false)
-  
-  def carPassed (tag : String) : Boolean =
-  {   
-     if (InterfaceKit.isAttached)
-     {
-        val interfaceKitWaitCar = new InterfaceKitWaitCar()
-        interfaceKitWaitCar.waitForCarToPassBarrier(tag)  // PUT RIFD HERE
-     } 
-     else 
-     {
-        println("You must attach the interfaceKit");
-        false
-     }
-  }
-
-  def genTag(): String = {
-    val uuid = UUID.randomUUID();
-    val time = System.currentTimeMillis() / 1000;
-    time.toString() ++ uuid.toString.replace("-", "").substring(9, 23)
   }
 
 }
