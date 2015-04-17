@@ -10,7 +10,7 @@ object Test
 {
   def main(args: Array[String]) 
   {
-    test2()
+    test1()
   }
   
   def test1()

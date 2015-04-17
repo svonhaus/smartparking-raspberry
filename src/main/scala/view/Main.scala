@@ -4,7 +4,7 @@ object Main
 {
   def main(args:Array[String])
   {
-    val context = 0
+    val context = 1
 
     if(context == 0)
       new UserInterfaceDisplay().initialize()
