@@ -1,9 +1,7 @@
 package controller
 
-import java.io.{InputStreamReader, BufferedReader, DataOutputStream, IOException}
-import java.net.{HttpURLConnection, URL}
-import java.util.Random
-
+import Actor.{VibrationActor, TouchActor, MagneticActor, TempActor}
+import akka.actor.{Props, ActorSystem}
 import com.phidgets.event._
 import com.phidgets.{ InterfaceKitPhidget, PhidgetException }
 import config.Config
@@ -12,15 +10,26 @@ import data.DataAdd
 import scala.util.{ Failure, Try }
 
 /**
- * Created by Steven on 18-03-15.
+ * Classe controlleur de l'interfaceKit
  */
-object InterfaceKit 
+class InterfaceKit
 {
   private val interfaceKit: InterfaceKitPhidget = new InterfaceKitPhidget()
   addAttachListener
   addDetachListener
   openAny
   waitForAttachment
+  changeRate
+  addSensorChangeListener
+
+  val systemTemp = ActorSystem("TempActor")
+  val TempActor = systemTemp.actorOf(Props[TempActor])
+  val systemMagn = ActorSystem("MagneticActor")
+  val MagneticActor = systemMagn.actorOf(Props[MagneticActor])
+  val systemTouch = ActorSystem("TouchActor")
+  val TouchActor = systemTouch.actorOf(Props[TouchActor])
+  val systemVibr = ActorSystem("VibrationActor")
+  val VibrationActor = systemVibr.actorOf(Props[VibrationActor])
 
   for(i <- 4 to 7) allumer_led(i)
 
@@ -28,13 +37,13 @@ object InterfaceKit
   {       
     var newValue:Option[Int] = None
     
-    if (interfaceKit.isAttached) 
+    if (isAttached)
     {
       Sensors.listAnalogSensors.filter(x => x._1 == index).head match
       {
         case ((indexSensor:Int, (functionToUse:(Int => Option[Int]), (treshold:Int, interval:Long))))  =>
         {
-          newValue = functionToUse(interfaceKit.getSensorValue(index))
+          newValue = functionToUse(getSensorValue(index))
         }
         case _ => 
       } 
@@ -77,13 +86,19 @@ object InterfaceKit
       })
     }
 
-  def openAny = interfaceKit.openAny()
+  def openAny = interfaceKit.openAny
   def isAttached = interfaceKit.isAttached
   def getSensorValue(index: Int) = interfaceKit.getSensorValue(index)
-  def close = interfaceKit.close()
+  def close = interfaceKit.close
 
-  //true si un touché a déjà été fait, false sinon.
-  private var touch = false
+  def changeRate = {
+    interfaceKit.setSensorChangeTrigger(Config.SHARP_SENSOR_1, 15)
+    interfaceKit.setSensorChangeTrigger(Config.SHARP_SENSOR_2, 15)
+    interfaceKit.setSensorChangeTrigger(Config.TEMP_SENSOR, 5)
+    interfaceKit.setSensorChangeTrigger(Config.MAGNETIC_SENSOR, 5)
+    interfaceKit.setSensorChangeTrigger(Config.TOUCH_SENSOR, 15)
+    interfaceKit.setSensorChangeTrigger(Config.VIBRATION_SENSOR, 10)
+  }
 
   /**
    * Détection de changement pour les capteurs et actions résultantes
@@ -92,46 +107,46 @@ object InterfaceKit
   {
     Try(interfaceKit.addSensorChangeListener(new SensorChangeListener {
       override def sensorChanged(sensorChangeEvent: SensorChangeEvent) = {
-        sensorChangeEvent.getIndex match {
-            case Config.TEMP_SENSOR => {
-              //si changement de température, envoi de celle-ci sur le webservice et action si elle est trop élevée.
-              println("Changement de température")
-              val temp = (getSensorValue(Config.TEMP_SENSOR) * 0.2222) - 61.111
-              println(temp)
-              DataAdd.updateTemp(temp)
-              //check_problem_temp(temp)
-            }
-            case Config.MAGNETIC_SENSOR => {
-              //si changement, envoi de la place et si elle est prise ou non, allume la led de la place et recalcule les trajets
-              println("Changement de magnetisme")
-              val result = getSensorValue(Config.MAGNETIC_SENSOR)
-              println(result)
-              DataAdd.updateParkingSpace(Config.PLACE_NUM, true) //TODO
-              //allumer_led(Config.LED_PLACE)
-            }
-            case Config.TOUCH_SENSOR => {
-              //si changement, envoi de la place et si elle est prise ou non, allume la led de la place et recalcule les trajets
-              println("Changement de touché")
-              val touchResult = getSensorValue(Config.TOUCH_SENSOR)
-              println(touchResult)
-              if(!touch && touchResult != 0) {
-                TouchSensor.touchControl(interfaceKit)
-                touch = true
-              } else if (touchResult == 0) touch = false
-            }
-            case Config.VIBRATION_SENSOR => {
-              //action et envoi sur webservice si changement et valeur trop élevée
-              println("Changement de vibration")
-              val vibration = getSensorValue(Config.VIBRATION_SENSOR)
-              println(vibration)
-              //check_problem_vibration(vibration)
-            }
-            case _ =>
+        val indexSensor = sensorChangeEvent.getIndex
+        indexSensor match {
+          case Config.TEMP_SENSOR => {
+            TempActor ! getSensorValue(indexSensor)
+          }
+          case Config.MAGNETIC_SENSOR => {
+            MagneticActor ! getSensorValue(indexSensor)
+          }
+          case Config.TOUCH_SENSOR => {
+            TouchActor ! getSensorValue(indexSensor)
+          }
+          case Config.VIBRATION_SENSOR => {
+            VibrationActor ! getSensorValue(indexSensor)
+          }
+          case _ => //println("changement autre")
         }
+
       }
     })) match {
       case Failure(exc : PhidgetException) => println(exc.getDescription)
       case _                               =>
+    }
+  }
+
+
+  /**
+   * Appel à l'interface kit permettant d'attendre qu'une voiture passe devant les capteurs de distances, laissant la barrière ouverte.
+   * @return true si la voiture a pu passer, false sinon.
+   */
+  def carPassed () : Boolean =
+  {
+    if (isAttached)
+    {
+      val interfaceKitWaitCar = new InterfaceKitWaitCar()
+      interfaceKitWaitCar.waitForCarToPassBarrier()
+    }
+    else
+    {
+      println("You must attach the interfaceKit")
+      false
     }
   }
 

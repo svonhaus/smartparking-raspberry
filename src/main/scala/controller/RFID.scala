@@ -5,6 +5,7 @@ import java.util.UUID
 
 import com.phidgets._
 import com.phidgets.event._
+import config.Config
 import data._
 import model._
 
@@ -105,24 +106,6 @@ object RFID
    * Change l'état de l'output 1 à false (représenté par un led éteint)
    */
   def ledGreenOff() = rfid.setOutputState(1, false)
-
-  /**
-   * Appel à l'interface kit permettant d'attendre qu'une voiture passe devant les capteurs de distances, laissant la barrière ouverte.
-   * @return true si la voiture a pu passer, false sinon.
-   */
-  def carPassed () : Boolean =
-  {
-    if (InterfaceKit.isAttached)
-    {
-      val interfaceKitWaitCar = new InterfaceKitWaitCar()
-      interfaceKitWaitCar.waitForCarToPassBarrier()
-    }
-    else
-    {
-      println("You must attach the interfaceKit")
-      false
-    }
-  }
 
   /**
    * @return un tag généré par concaténation d'un UUID aléatoire et de l'instant de génération.

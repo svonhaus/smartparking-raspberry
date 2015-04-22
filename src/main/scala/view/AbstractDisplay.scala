@@ -1,6 +1,7 @@
 package view
 
 import com.phidgets.event._
+import config.Config
 import controller.{RFID, Barriere, InterfaceKit}
 import data.{DataAdd, DataGet}
 
@@ -12,7 +13,6 @@ import scala.util.{Failure, Success}
  */
 abstract class AbstractDisplay
 {
-  val barriere = new Barriere()
 
   /**
    * Affichage du tag scanné
@@ -49,7 +49,7 @@ abstract class AbstractDisplay
    */
   def initialize()
   {
-    barriere.Barriere()
+    Config.barriere.Barriere()
 
     RFID.rfid.addTagGainListener(new TagGainListener() //attend un scan de tag RFID
     {
@@ -73,17 +73,17 @@ abstract class AbstractDisplay
                   case "ok" => /* S'il peut passer, allume la led verte, ouvre la barriere, indique un message et détecte la présence de la voiture qui doit passer */
                   {
                     RFID.ledGreenOn()
-                    barriere.ouverture
+                    Config.barriere.ouverture
                     showMessage("L'utilisateur peut passer, faites entrer la voiture.", "Passage", "INFORMATION_MESSAGE")
-                    RFID.carPassed() match /* Si détection que la voiture est bien passée, on enregistre l'action, sinon on affiche une erreur. */
+                    Config.IK.carPassed() match /* Si détection que la voiture est bien passée, on enregistre l'action, sinon on affiche une erreur. */
                     {
                       case true => {
-                        DataAdd.addFlowParking(tag, RFID.action)
+                        val result = DataAdd.addFlowParking(tag, RFID.action)
                         showMessage("La voiture est bien passée.", "Passage", "INFORMATION_MESSAGE")
                       }
                       case false => showMessage("La voiture n'est pas passée", "Passage", "ERROR_MESSAGE")
                     }
-                    barriere.fermeture
+                    Config.barriere.fermeture
                     RFID.ledGreenOff()
                   }
                   case _ => //message d'erreur si le user ne peut pas passer

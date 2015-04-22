@@ -1,6 +1,6 @@
 package controller
 
-import data.DataAdd
+import config.Config
 import observable.ObservableSensors
 import rx.lang.scala.Observable
 import rx.lang.scala.schedulers.NewThreadScheduler
@@ -13,7 +13,7 @@ class InterfaceKitWaitCar
   def waitForCarToPassBarrier():Boolean =
   {
     val observableTupleWithInterval: Observable[(Option[Int], Option[Int])] = ObservableSensors.observableTuple(
-      InterfaceKit.getStreamForValuesFromSensor(0, None), InterfaceKit.getStreamForValuesFromSensor(1, None), 500)
+      Config.IK.getStreamForValuesFromSensor(0, None), Config.IK.getStreamForValuesFromSensor(1, None), 500)
 
     if(waitCar(observableTupleWithInterval))
     {

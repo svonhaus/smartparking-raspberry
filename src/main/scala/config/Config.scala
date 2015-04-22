@@ -1,5 +1,7 @@
 package config
 
+import controller.{InterfaceKit, Barriere}
+
 /**
  * Fichier de configuration de l'application
  */
@@ -17,8 +19,8 @@ object Config {
    val LED_OUT_RED:Int = 4
 
 
-   val SHARP_SENSOR_1 = 0 /*Emplacement des capteurs*/
-   val SHARP_SENSOR_2 = 1
+   val SHARP_SENSOR_1:Int = 0 /*Emplacement des capteurs*/
+   val SHARP_SENSOR_2:Int = 1
    val TEMP_SENSOR: Int = 2
    val MAGNETIC_SENSOR: Int = 3
    val TOUCH_SENSOR: Int = 4
@@ -27,4 +29,8 @@ object Config {
    val PLACE_NUM = 1 //numéro de la place sur laquelle est placé le capteur magnétique
 
    var token = ""
+   val barriere = new Barriere
+   val IK = new InterfaceKit
+   //url de base de webservice azure
+   val apiUrl = "http://smartking.azurewebsites.net/api/"
 }

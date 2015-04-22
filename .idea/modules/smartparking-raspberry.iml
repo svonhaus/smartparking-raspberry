@@ -26,43 +26,20 @@
     <orderEntry type="module-library">
       <library name="SBT: unmanaged-jars">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../lib/phidget21.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../lib/rxscala_2.11-0.24.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../lib/scalaj-http_2.11-0.3.16.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../lib/rxjava-1.0.7.jar!/" />
           <root url="jar://$MODULE_DIR$/../../lib/org.json.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/rxjava-1.0.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/phidget21.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/zxing-javase.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/rxscala_2.11-0.24.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/zxing.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/org.apache.commons.httpclient.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/scalaj-http_2.11-0.3.16.jar!/" />
           <root url="jar://$MODULE_DIR$/../../lib/rxscala_2.11-0.24.0-javadoc.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../lib/org.apache.commons.httpclient.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../lib/zxing.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../lib/zxing-javase.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="org.scalatra:scalatra-akka_2.10:2.2.0-RC3" level="project" />
   </component>
 </module>

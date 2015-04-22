@@ -12,7 +12,8 @@ import model._
  */
 object DataGet 
 {
-  val apiUrl = "http://smartking.azurewebsites.net/api/"
+  //définition générique d'une requête get avec scalaj
+  def getHttp (path : String) = Http.get(Config.apiUrl + path).option(HttpOptions.connTimeout(1000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer "+Config.token).asString
 
   /**
    * @param tagOrMail : tag ou email de l'utilisateur recherché
@@ -20,9 +21,8 @@ object DataGet
    */
   def found(tagOrMail : String) : Person =
   {
-    val url = apiUrl + "users/" + tagOrMail
     try {
-      val responseGet = Http.get(url).header("Authorization", "Bearer "+Config.token).asString
+      val responseGet = getHttp("users/" + tagOrMail)
       responseGet match {
         case "\"TagNotFound\"" => throw new Exception("Le tag ne correspond à aucun utilisateur.")
         case "\"Expired\"" => throw new Exception("Le tag est expiré.")
@@ -45,7 +45,7 @@ object DataGet
    */
   def searchTagUser (tag : String, action : String) : String =
   {
-    val responseGet = Http.get(apiUrl + "Tags/"+ action +"/" + tag).header("Authorization", "Bearer "+Config.token).asString
+    val responseGet = getHttp("Tags/"+ action +"/" + tag)
     responseGet match {
       case "\"Ok\"" => "ok"
       case "\"Full\"" => "Le parking est rempli."
@@ -62,26 +62,8 @@ object DataGet
    */
   def foundAction () : String = 
   {
-    val actionStr = Http.get(apiUrl + "global/rfid").header("Authorization", "Bearer "+Config.token).asString
+    val actionStr = getHttp("global/rfid")
     new JSONObject(actionStr).getString("value")
   }
 
-  /**
-   *
-   * @return true si un client temporaire peut entrer dans le parking, false sinon
-   */
-  def tmpIn () : Boolean =
-  {
-      true
-  }
-
-  /**
-   *
-   * @param id : l'identifiant du ticket qrcode pour un client temporaire
-   * @return true si le client temporaire peut sortir du parking, c'est-à-dire si il a payé, false sinon
-   */
-  def tmpOut(id : String) : Boolean =
-  {
-      true
-  }
 }

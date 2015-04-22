@@ -1,9 +1,12 @@
-package interfacekit
+package Config.IK
 
+import config.Config
 import controller._
+import data.DataAdd
 import model.Person
 import org.json.JSONObject
 
+import scala.util.Success
 import scalaj.http.Http
 
 /**
@@ -13,12 +16,12 @@ object Test
 {
   def main(args: Array[String]) 
   {
-    test1
+    testSensorListener()
   }
   
   def test1()
   {
-    InterfaceKit.waitForAttachment
+    Config.IK.waitForAttachment
     
     println("début test")
     
@@ -27,21 +30,21 @@ object Test
     
     readLine()
     oneSensor.stopSensor()
-    InterfaceKit.close
+    Config.IK.close
     println("fin test")
   }
   
   def test2()
   {
-    InterfaceKit.waitForAttachment
+    Config.IK.waitForAttachment
     
     println("début test")
     
     val observableWaitCar = new InterfaceKitWaitCar()
-    observableWaitCar.waitForCarToPassBarrier();
+    observableWaitCar.waitForCarToPassBarrier()
     
     readLine()
-    InterfaceKit.close
+    Config.IK.close
     println("fin test")
   }
 
@@ -67,7 +70,7 @@ object Test
 
   def test5()
   {
-    InterfaceKit.waitForAttachment
+    Config.IK.waitForAttachment
 
     println("début test SENSOR")
 
@@ -75,7 +78,7 @@ object Test
     oneSensor.startSensor(100)
     readLine()
     oneSensor.stopSensor()
-    InterfaceKit.close
+    Config.IK.close
     println("fin test")
   }
 
@@ -89,9 +92,23 @@ object Test
 
   def testSensorListener(): Unit = {
     println("debut test")
-    InterfaceKit.addSensorChangeListener
+    Config.IK.addSensorChangeListener
     readLine()
-    InterfaceKit.close
+    Config.IK.close
+    println("fin test")
+  }
+
+  def testData(): Unit = {
+    println("debut test")
+    DataAdd.auth() match {
+      case Success(rep) => {
+        val result = DataAdd.updateTemp(24.0)
+        println(result)
+        val responseGet = Http.get("http://smartking.azurewebsites.net/api/Parking/temperature").header("Authorization", "Bearer " + Config.token).asString
+        println(responseGet)
+      }
+      case _ =>
+    }
     println("fin test")
   }
 }

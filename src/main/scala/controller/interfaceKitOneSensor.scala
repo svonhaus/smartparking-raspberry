@@ -1,5 +1,6 @@
 package controller
 
+import config.Config
 import observable.ObservableSensors
 import rx.lang.scala.schedulers.NewThreadScheduler
 
@@ -24,7 +25,7 @@ class InterfaceKitOneSensor(val indexSensor:Int)
   
   def launchOneSensor(duration:Long) 
   {
-    val myStream = InterfaceKit.getStreamForValuesFromSensor(indexSensor, None)
+    val myStream = Config.IK.getStreamForValuesFromSensor(indexSensor, None)
 
     val observableSensor = ObservableSensors.observableSimple(myStream, duration)
     val subscriptionCarComeIn = observableSensor.subscribeOn(NewThreadScheduler()).subscribe(onNextValueSensor, ObservableSensors.errorWhatToDo)  

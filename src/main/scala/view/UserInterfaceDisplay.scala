@@ -1,12 +1,10 @@
 package view
 
 import controller._
-import data.{DataAdd, DataGet}
+import data.{DataGet}
 import model._
 import viewJava._
-import javax.swing._
-
-import scala.util.{Failure, Success}
+import config.Config
 
 /**
  * Démarrage de l'application sur une interface graphique en fenêtre.
@@ -67,7 +65,7 @@ class UserInterfaceDisplay extends AbstractDisplay
      */
     override def actionScalaOpen()
     {
-      barriere.ouverture()
+      Config.barriere.ouverture()
     }
 
     /**
@@ -75,7 +73,7 @@ class UserInterfaceDisplay extends AbstractDisplay
      */
     override def actionScalaClose()
     {
-      barriere.fermeture()
+      Config.barriere.fermeture()
     }
 
     /**

@@ -25,7 +25,9 @@ import scala.util.{Failure, Success}
  */
 object TouchSensor {
 
-  val barriere = new Barriere()
+  val barriere = Config.barriere
+  val IK = Config.IK
+
   /**
    * @return un tag généré par concaténation d'un UUID aléatoire et de l'instant de génération.
    */
@@ -56,44 +58,33 @@ object TouchSensor {
 
   /**
    *
-   * @param interfaceKit
    */
-  def touchControl(interfaceKit : InterfaceKitPhidget): Unit = {
-      DataGet.tmpIn() match {
-        case true => {
+  def touchControl(): Unit = {
           println("génération du qrcode et impression du ticket")
           val idGen = genIdTmp()
           genQRCode(idGen)
           DataAdd.registerTmp(idGen) match {
             case Success(rep) => {
+              println(rep)
               if (rep == "\"Ok\"") {
-                interfaceKit.setOutputState(Config.LED_IN_GREEN, true)
+                IK.allumer_led(Config.LED_IN_GREEN)
                 barriere.ouverture
                 println("L'utilisateur peut passer, faites entrer la voiture.")
-                RFID.carPassed() match /* Si détection que la voiture est bien passée, on enregistre l'action, sinon on affiche une erreur. */ {
+                IK.carPassed() match {
                   case true => {
-                    DataAdd.addFlowParkingTmp(idGen, "in")
                     println("La voiture est bien passée.")
                   }
                   case false => println("La voiture n'est pas passée")
                 }
                 barriere.fermeture
-                interfaceKit.setOutputState(Config.LED_IN_GREEN, false)
+                IK.eteindre_led(Config.LED_IN_GREEN)
               }
-              else "Erreur"
+              else "Le parking n'est pas accessible aux utilisateurs temporaires pour l'instant"
             }
             case Failure(exc) => {
-              "Erreur réseau"
+              println(exc)
             }
           }
-        }
-        case false => {
-          println ("Le parking n'est pas accessible aux utilisateurs temporaires pour l'instant")
-          interfaceKit.setOutputState(Config.LED_IN_RED, true)
-          Thread.sleep(500)
-          interfaceKit.setOutputState(Config.LED_IN_RED, false)
-        }
-      }
   }
 
 }
