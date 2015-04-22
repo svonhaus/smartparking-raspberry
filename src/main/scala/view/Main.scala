@@ -17,7 +17,6 @@ object Main
     DataAdd.auth() match {
       case Success(rep) => {
           Config.token = new JSONObject(rep).getString("access_token")
-          Config.IK
           if(Config.context == 0)
             new UserInterfaceDisplay().initialize()
           else

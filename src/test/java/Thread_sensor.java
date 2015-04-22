@@ -1,7 +1,3 @@
-package viewJava;
-
-import java.io.IOException;
-
 import com.phidgets.PhidgetException;
 
 

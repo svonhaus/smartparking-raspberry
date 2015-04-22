@@ -39,18 +39,6 @@ class InterfaceKitOneSensor(val indexSensor:Int)
     case Some(result) => println("Value from Sensor " + indexSensor + " = " + result)
     case None =>
   }
-/*
-  def valueControl (result : Int): Unit = {
-
-    indexSensor match {
-      case 4 => {
-        //TouchSensor
-        touch = true
-      }
-      case _ =>
-    }
-
-  }*/
 
 
 }

@@ -1,9 +1,11 @@
 package data
 
+import java.lang.Double
 import java.net.UnknownHostException
 
 import config.Config
 import org.json._
+import scala.util.Try
 import scalaj.http._
 import model._
 
@@ -13,7 +15,7 @@ import model._
 object DataGet 
 {
   //définition générique d'une requête get avec scalaj
-  def getHttp (path : String) = Http.get(Config.apiUrl + path).option(HttpOptions.connTimeout(1000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer "+Config.token).asString
+  def getHttp (path : String) = Http.get(Config.apiUrl + path).option(HttpOptions.connTimeout(5000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer "+Config.token).asString
 
   /**
    * @param tagOrMail : tag ou email de l'utilisateur recherché
@@ -56,6 +58,27 @@ object DataGet
       case _ => "Erreur réseau"
     }
   }
+
+  /**
+   * @return la température dans le parking
+   */
+  def getTemp (): Try[Double] = {
+    Try(Double.parseDouble(getHttp("Parking/temperature")))
+  }
+
+  /*
+  * @return l'indice de vibration dans le parking
+  */
+  def getVibr (): Try[Double] = { //TODO
+    Try(850.0/*Double.parseDouble(getHttp("Parking/vibration"))*/)
+  }
+
+  /*
+  * @return les places dispos du parking
+  */
+def getPlaces (): Try[String] = { //TODO
+  Try("ok"/*getHttp("Parking/places")*/)
+}
 
   /**
    * @return l'action qui doit être effectué au moment de la demande.

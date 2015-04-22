@@ -8,17 +8,18 @@ import data.DataAdd
 import scalaj.http.Http
 
 /**
- * Created by timmy_machine on 22/04/15.
+ * Classe Actor qui reçoit les valeurs du capteur de touché, exécute un traitement (entrée dans le parking et génération de qrcode) si il y a bien touché
  */
 class TouchActor extends Actor {
 
   //true si un touché a déjà été fait, false sinon.
   private var touch = false
+  /*
+    Si changement de valeur et on a déjà relaché le boutton avant, on traite dans touchControl
+   */
   def receive = {
     case value: Int => {
-      //si changement, envoi de la place et si elle est prise ou non, allume la led de la place et recalcule les trajets
-      println("Changement de touché")
-      println(value)
+      println("Changement de touché : " + value)
       if (!touch && value >= 100) {
         touch = true
         //TouchSensor.touchControl()

@@ -1,6 +1,3 @@
-package viewJava;
-
-
 public class Config {
     static final int LED_F1=7;
     static final int LED_F2=5;

@@ -4,19 +4,17 @@ import akka.actor.Actor
 import config.Config
 import data.DataAdd
 
-import scalaj.http.Http
-
 /**
- * Created by timmy_machine on 22/04/15.
+ * Classe Actor qui reçoit les valeurs du capteur magnétique et les envoie sur la couche Data
  */
 class MagneticActor extends Actor {
+
+  /*si changement de valeur, envoi de la place et si elle est prise ou non,
+   allume la led de la place et recalcule les trajets
+  */
   def receive = {
     case value: Int => {
-      //si changement, envoi de la place et si elle est prise ou non, allume la led de la place et recalcule les trajets
-      println("Changement de magnetisme")
-      println(value)
-      DataAdd.updateParkingSpace(Config.PLACE_NUM, true) //TODO
-      //allumer_led(Config.LED_PLACE)
+      println("Changement de magnetisme : " + value)
     }
     case _     => println("problem from " + Config.MAGNETIC_SENSOR)
   }

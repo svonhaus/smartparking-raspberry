@@ -57,7 +57,7 @@ object TouchSensor {
   }
 
   /**
-   *
+   * Traitement pour la création d'un utilisateur temporaire et passage de voiture
    */
   def touchControl(): Unit = {
           println("génération du qrcode et impression du ticket")

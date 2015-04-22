@@ -1,26 +1,46 @@
 package Actor
 
+import java.lang.Double
+
 import akka.actor.Actor
 import config.Config
-import controller.TouchSensor
-import data.DataAdd
+import data.{DataGet, DataAdd}
 
-import scalaj.http.Http
+import scala.util.{Failure, Success}
+import scala.concurrent.duration._
 
-
+/**
+ * Classe Actor qui reçoit les valeurs du capteur de température et les envoie sur la couche Data
+ */
 class TempActor extends Actor {
 
+  import context.dispatcher
+  val tick = context.system.scheduler.schedule(0 millis, Config.INTERVAL_CHECK_TEMP, self, "checkTemp")
+
+  //si changement de température, envoi de celle-ci sur le webservice et action si elle est trop élevée.
   def receive = {
     case value: Int => {
-          //si changement de température, envoi de celle-ci sur le webservice et action si elle est trop élevée.
-          println("Changement de température")
           val temp = (value * 0.2222) - 61.111
-          println(temp)
-          DataAdd.updateTemp(temp)
-          Thread.sleep(1000)
-          val responseGet = Http.get("http://smartking.azurewebsites.net/api/Parking/temperature").header("Authorization", "Bearer " + Config.token).asString
-          println("response get : " + responseGet)
-          //check_problem_temp(temp)
+          println("Changement de température : " + temp)
+          DataAdd.updateTemp(temp) match {
+            case Success(rep) => println(rep)
+            case Failure(exc) => println(exc)
+          }
+    }
+    case "checkTemp" => {
+      /* Procédure d'alerte si problème de température */
+      val temp = DataGet.getTemp()
+      temp match {
+        case Success(temp) => {
+          println("Température du parking : " + temp)
+          if (temp >= Config.MAX_TEMP) {
+            Config.IK.faire_clignoter(Config.LED_TEMP_PROBLEM)
+          } else {
+            Config.IK.eteindre_led(Config.LED_TEMP_PROBLEM)
+          }
+        }
+        case Failure(exc) => println("Problème réseau")
+      }
     }
     case _     => println("problem from " + Config.TEMP_SENSOR)
   }

@@ -1,15 +1,7 @@
-package viewJava;
-
-
-
 /*
  * Copyright 2007 Phidgets Inc.  All rights reserved.
  */
 
-import java.awt.Button;
-import java.awt.Frame;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.IOException;
 
 import com.phidgets.*;

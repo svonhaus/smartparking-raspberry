@@ -1,18 +1,10 @@
-package viewJava;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Random;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import com.phidgets.InterfaceKitPhidget;
 import com.phidgets.PhidgetException;
@@ -22,10 +14,6 @@ import com.phidgets.event.DetachEvent;
 import com.phidgets.event.DetachListener;
 import com.phidgets.event.SensorChangeEvent;
 import com.phidgets.event.SensorChangeListener;
-
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 
 
 public class InterfaceKitControl {
