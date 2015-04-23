@@ -69,7 +69,7 @@ class InterfaceKit
     {
       println("wait for attachment")
 
-      Try(interfaceKit.waitForAttachment()) match {
+      Try(interfaceKit.waitForAttachment(1000)) match {
         case Failure(ex: PhidgetException) => println(ex.getDescription)
         case _                             =>
       }
@@ -114,6 +114,7 @@ class InterfaceKit
     interfaceKit.setSensorChangeTrigger(Config.MAGNETIC_SENSOR, 5)
     interfaceKit.setSensorChangeTrigger(Config.TOUCH_SENSOR, 15)
     interfaceKit.setSensorChangeTrigger(Config.VIBRATION_SENSOR, 10)
+    interfaceKit.setSensorChangeTrigger(Config.IR_SENSOR, 15)
   }
 
   /**
@@ -188,7 +189,7 @@ class InterfaceKit
    * @param num emplacement de la led
    */
   def allumer_led(num: Int) {
-    interfaceKit.setOutputState(num, true)
+    if(isAttached) interfaceKit.setOutputState(num, true)
   }
 
   /**
@@ -196,7 +197,7 @@ class InterfaceKit
    * @param num emplacement de la led
    */
   def eteindre_led(num: Int) {
-    interfaceKit.setOutputState(num, false)
+    if(isAttached) interfaceKit.setOutputState(num, false)
   }
 
   /* Clignotement de la led i */

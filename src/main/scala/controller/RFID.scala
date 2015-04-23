@@ -90,22 +90,28 @@ object RFID
   /**
    * Change l'état de l'output 0 à true (représenté par un led allumé rouge)
    */
-  def ledRedOn() = rfid.setOutputState(0, true)
+  def ledRedOn() = if(isAttached) rfid.setOutputState(0, true)
 
   /**
    * Change l'état de l'output 0 à false (représenté par un led éteint)
    */
-  def ledRedOff() = rfid.setOutputState(0, false)
+  def ledRedOff() = if(isAttached) rfid.setOutputState(0, false)
 
   /**
    * Change l'état de l'output 1 à true (représenté par un led allumé vert)
    */
-  def ledGreenOn() = rfid.setOutputState(1, true)
+  def ledGreenOn() = if(isAttached) rfid.setOutputState(1, true)
 
   /**
    * Change l'état de l'output 1 à false (représenté par un led éteint)
    */
-  def ledGreenOff() = rfid.setOutputState(1, false)
+  def ledGreenOff() = if(isAttached) rfid.setOutputState(1, false)
+
+  /**
+   *
+   * @return true si le rfid est bien attaché, false sinon
+   */
+  def isAttached = rfid.isAttached
 
   /**
    * @return un tag généré par concaténation d'un UUID aléatoire et de l'instant de génération.
@@ -138,24 +144,28 @@ object RFID
    */
   def inscriptionTag(person:Person) : String =
   {
-    val tag = genTag()
+    if(isAttached) {
+      val tag = genTag()
 
-    try {
-      rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur le tag
-      register(tag, person.lastName, person.firstName, person.mail) match {
-        case Success(rep) => {
-          println("\nWrite Tag : " + tag )
-          if(rep == "\"Ok\"") "ok"
-          else "Cet e-mail est déjà utilisé."
+      try {
+        rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur le tag
+        register(tag, person.lastName, person.firstName, person.mail) match {
+          case Success(rep) => {
+            println("\nWrite Tag : " + tag )
+            if(rep == "\"Ok\"") "ok"
+            else "Cet e-mail est déjà utilisé."
+          }
+          case Failure(exc) => {
+            println(exc)
+            "Erreur réseau"
+          }
         }
-        case Failure(exc) => {
-          println(exc)
-          "Erreur réseau"
-        }
+      } catch {
+        case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
+                                else "Erreur lors de l'écriture du tag."
       }
-    } catch {
-      case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
-                              else "Erreur lors de l'écriture du tag."
+    } else {
+      "Veuillez rattachez le RFID"
     }
   }
 
