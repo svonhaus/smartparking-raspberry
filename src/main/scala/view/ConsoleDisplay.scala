@@ -1,11 +1,7 @@
 package view
 
-import com.phidgets.event.{TagGainEvent, TagGainListener}
 import controller.RFID
-import data.{DataAdd, DataGet}
-import org.json.JSONObject
-
-import scalaj.http.Http
+import data.DataGet
 
 /**
  * Démarrage de l'application sans interface graphique et affichage de message en console.
@@ -15,24 +11,17 @@ class ConsoleDisplay extends AbstractDisplay
 {
   override def messageTagLu(tag:String)
   {
-    println("[INFO] Tag read : " + tag)
+    UtilConsole.showMessage("Tag read : " + tag, getClass.getName, "INFORMATION_MESSAGE")
   }
 
   override def messagePerson(lastName:String, firstName:String, mail:String, inTheParking : Boolean)
   {
-    println("[INFO] PERSON : last name = " + lastName + "; first name = " + firstName + "; mail = " + mail + "; statut = " + inTheParking)
+    UtilConsole.showMessage("PERSON : last name = " + lastName + "; first name = " + firstName + "; mail = " + mail + "; statut = " + inTheParking, getClass.getName, "INFORMATION_MESSAGE")
   }
 
   override def showMessage(message:String, titre:String, typeMessage:String): Unit =
   {
-    typeMessage match
-    {
-      case "ERROR_MESSAGE" => print("[ERROR] ")
-      case "INFORMATION_MESSAGE" => print("[INFO] ")
-      case "WARNING_MESSAGE" => print("[WARNING] ")
-    }
-
-    println(titre + " : " + message)
+    UtilConsole.showMessage(message, titre, typeMessage)
   }
 
   override def choisirAction(): Unit = {

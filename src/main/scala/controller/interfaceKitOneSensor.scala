@@ -3,6 +3,7 @@ package controller
 import config.Config
 import observable.ObservableSensors
 import rx.lang.scala.schedulers.NewThreadScheduler
+import view.UtilConsole
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -36,7 +37,7 @@ class InterfaceKitOneSensor(val indexSensor:Int)
 
   val onNextValueSensor: (Option[Int]) => Unit =
   {
-    case Some(result) => println("Value from Sensor " + indexSensor + " = " + result)
+    case Some(result) =>  UtilConsole.showMessage("Value from Sensor " + indexSensor + " = " + result, getClass.getName, "INFORMATION_MESSAGE")
     case None =>
   }
 

@@ -14,6 +14,7 @@ import com.phidgets.event.DetachEvent;
 import com.phidgets.event.DetachListener;
 import com.phidgets.event.SensorChangeEvent;
 import com.phidgets.event.SensorChangeListener;
+import view.UtilConsole;
 
 
 public class InterfaceKitControl {
@@ -164,17 +165,18 @@ public class InterfaceKitControl {
         }
     }
 
-    public void faire_clignoter(int i) throws PhidgetException, InterruptedException{
-
-        while(true){
-            System.out.println("Clignotement car trop chaud...");
+    public void faire_clignoter(int i) throws PhidgetException, InterruptedException
+    {
+        while(true)
+        {
+            UtilConsole.showMessage("Clignotement car trop chaud...", getClass().getName(), "INFORMATION_MESSAGE");
+            System.out.println("");
             this.allumer_led(i);
             //LecteurTexte.lt = new LecteurTexte("Attention! Attention! La température du parking est trop élevée");
             Thread.sleep(500);
             this.eteindre_led(i);
             Thread.sleep(500);
         }
-
     }
 
     public void go_to_floor(int num) throws PhidgetException, InterruptedException{

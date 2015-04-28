@@ -1,6 +1,6 @@
 package data
 
-import config.Config
+import config.{MyProperties, Config}
 import org.json.JSONObject
 
 import scalaj.http._
@@ -12,9 +12,9 @@ import scala.util._
 object DataAdd
 {
   //définition générique d'une requête post avec scalaj
-  def postHttp (path : String) = Http.post(Config.apiUrl + path).option(HttpOptions.connTimeout(5000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer "+Config.token)
+  def postHttp (path : String) = Http.post(MyProperties.API_URL + path).option(HttpOptions.connTimeout(5000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer " + Config.token)
   //définition générique d'une requête put avec scalaj
-  def putHttp (path : String, json : String) = Http.postData(Config.apiUrl + path, json).header("Authorization", "Bearer "+Config.token).method("put").header("Content-Type", "application/json").asString
+  def putHttp (path : String, json : String) = Http.postData(MyProperties.API_URL + path, json).header("Authorization", "Bearer "+Config.token).method("put").header("Content-Type", "application/json").asString
 
   /** Permet une authentification sur le webservice afin de faire les requêtes privée par-après
     * @return un objet json contenant le token

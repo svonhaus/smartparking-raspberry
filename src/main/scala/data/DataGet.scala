@@ -3,7 +3,7 @@ package data
 import java.lang.Double
 import java.net.UnknownHostException
 
-import config.Config
+import config.{MyProperties, Config}
 import org.json._
 import scala.util.Try
 import scalaj.http._
@@ -15,7 +15,7 @@ import model._
 object DataGet 
 {
   //définition générique d'une requête get avec scalaj
-  def getHttp (path : String) = Http.get(Config.apiUrl + path).option(HttpOptions.connTimeout(5000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer "+Config.token).asString
+  def getHttp (path : String) = Http.get(MyProperties.API_URL + path).option(HttpOptions.connTimeout(5000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer "+Config.token).asString
 
   /**
    * @param tagOrMail : tag ou email de l'utilisateur recherché

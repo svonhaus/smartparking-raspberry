@@ -5,9 +5,10 @@ import java.util.UUID
 
 import com.phidgets._
 import com.phidgets.event._
-import config.Config
+import config.{MyProperties, Config}
 import data._
 import model._
+import view.UtilConsole
 
 import scala.util._
 
@@ -28,7 +29,8 @@ object RFID
 
   def addAttachListener()
   {
-    rfid.addAttachListener(new AttachListener() {
+    rfid.addAttachListener(new AttachListener()
+    {
       def attached(ae: AttachEvent) {
         try {
           (ae.getSource match {
@@ -39,17 +41,20 @@ object RFID
             case aeRFID: RFIDPhidget => aeRFID
           }).setLEDOn(true)
         } catch {
-          case exc: PhidgetException => println(exc)
+          case exc: PhidgetException => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
         }
-        println("attachment 1 of " + ae)
+
+        UtilConsole.showMessage(ae + " has been attached.", getClass.getName, "ERROR_MESSAGE")
       }
     })
   }
   
   def tagLossListener()
   {
-    rfid.addTagLossListener(new TagLossListener() {
-      def tagLost(oe: TagLossEvent) {
+    rfid.addTagLossListener(new TagLossListener()
+    {
+      def tagLost(oe: TagLossEvent)
+      {
         rfid.setOutputState(0, false)
         rfid.setOutputState(1, false)
       }
@@ -58,19 +63,21 @@ object RFID
   
   def addOutputChangeListener()
   {
-    rfid.addOutputChangeListener(new OutputChangeListener() {
-      def outputChanged(oe: OutputChangeEvent) {
-        println(oe.getIndex + " change to " + oe.getState)
-        }
+    rfid.addOutputChangeListener(new OutputChangeListener()
+    {
+      def outputChanged(oe: OutputChangeEvent)
+      {
+        UtilConsole.showMessage("Led n°" + oe.getIndex + " has changed to " + oe.getState, getClass.getName, "INFORMATION_MESSAGE")
+      }
      })
   }
   
-  def openAny() = rfid.openAny()
+  def openAny() = rfid.open(MyProperties.RFID_SERIAL_NUMBER, MyProperties.PHIDGET_SERVER,MyProperties.PORT_PHIGET_SERVER)
   
   def waitForAttachement()
   {
-      println("waiting for RFID attachment...")
-      rfid.waitForAttachment(1000)
+    UtilConsole.showMessage("Wait for attachment.", getClass.getName, "INFORMATION_MESSAGE")
+    Try(rfid.waitForAttachment(1000))
   }
 
   /**
@@ -147,20 +154,30 @@ object RFID
     if(isAttached) {
       val tag = genTag()
 
-      try {
+      try
+      {
         rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur le tag
-        register(tag, person.lastName, person.firstName, person.mail) match {
-          case Success(rep) => {
-            println("\nWrite Tag : " + tag )
-            if(rep == "\"Ok\"") "ok"
-            else "Cet e-mail est déjà utilisé."
+
+        register(tag, person.lastName, person.firstName, person.mail) match
+        {
+          case Success(rep) =>
+          {
+            UtilConsole.showMessage("Write Tag : " + tag , getClass.getName, "INFORMATION_MESSAGE")
+
+            if(rep == "\"Ok\"")
+              "ok"
+            else
+              "Cet e-mail est déjà utilisé."
           }
-          case Failure(exc) => {
-            println(exc)
+          case Failure(exc) =>
+          {
+            UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
             "Erreur réseau"
           }
         }
-      } catch {
+      }
+      catch
+        {
         case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
                                 else "Erreur lors de l'écriture du tag."
       }
@@ -181,15 +198,19 @@ object RFID
     try {
       rfid.write(tag, RFIDPhidget.PHIDGET_RFID_PROTOCOL_PHIDGETS, false) //écrit sur la tag
       val idUser = DataGet.found(person.mail.replace("@", "-at-").replace(".", "-dot-")).id
-      DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match {
-        case Success(rep) => {
-          println("\nWrite Tag : " + tag)
-          if(rep == "\"Ok\"") "ok"
-          else "Cet e-mail est déjà utilisé."
+
+      DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match
+      {
+        case Success(rep) =>
+        {
+          UtilConsole.showMessage("Write Tag : " + tag, getClass.getName, "INFORMATION_MESSAGE")
+
+          if(rep == "\"Ok\"")
+            "ok"
+          else
+            "Cet e-mail est déjà utilisé."
         }
-        case Failure(exc) => {
-          "Erreur réseau."
-        }
+        case Failure(exc) => "Erreur réseau."
       }
     } catch {
       case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
@@ -204,18 +225,23 @@ object RFID
    */
   def updateUser (tag : String, person : Person) : String =
   {
-    try {
+    try
+    {
       val idUser = DataGet.found(tag).id
-      DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match {
-        case Success(rep) => {
+
+      DataAdd.updateUser(idUser, tag, person.lastName, person.firstName, person.mail) match
+      {
+        case Success(rep) =>
+        {
           if(rep == "\"Ok\"") "ok"
           else "Cet e-mail est déjà utilisé."
         }
-        case Failure(exc) => {
-          "Erreur réseau."
-        }
+
+        case Failure(exc) => "Erreur réseau."
       }
-    } catch {
+    }
+    catch
+      {
       case exc : Exception => if(exc.getMessage == "Erreur réseau") exc.getMessage
                               else "Erreur lors de l'écriture du tag."
     }

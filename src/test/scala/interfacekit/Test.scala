@@ -1,12 +1,16 @@
 package Config.IK
 
-import config.Config
+import Actor.ManagerSharpSensorActor
+import akka.actor.{ActorSystem, Props}
+import com.phidgets.InterfaceKitPhidget
+import config.{MyProperties, Config}
 import controller._
 import data.DataAdd
 import model.Person
 import org.json.JSONObject
+import view.UtilConsole
 
-import scala.util.Success
+import scala.util.{Failure, Success}
 import scalaj.http.Http
 
 /**
@@ -14,11 +18,24 @@ import scalaj.http.Http
  */
 object Test 
 {
-  def main(args: Array[String]) 
+  def main(args: Array[String]): Unit =
   {
-    testSensorListener()
+    beforeTest
+    testMyProperties()
   }
-  
+
+  def beforeTest(): Unit =
+  {
+    DataAdd.auth() match
+    {
+      case Success(rep) =>
+      {
+        Config.token = new JSONObject(rep).getString("access_token")
+      }
+      case Failure(exc) => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
+    }
+  }
+
   def test1()
   {
     Config.IK.waitForAttachment
@@ -110,5 +127,31 @@ object Test
       case _ =>
     }
     println("fin test")
+  }
+
+  def testActorSharp(): Unit =
+  {
+    val systemSharp = ActorSystem("SharpSensorActor")
+    println("début test")
+
+    val actorSharp = systemSharp.actorOf(Props[ManagerSharpSensorActor])
+    actorSharp ! "14297316953b44afaaf30118$in"
+
+    println("fin test")
+  }
+
+  def testWebserviceAttachment() =
+  {
+    val ik = new InterfaceKitPhidget
+    ik.open(319197,"laptop-steven.local",5001)
+    ik.waitForAttachment()
+    println("Hello")
+  }
+
+  def testMyProperties(): Unit =
+  {
+    println(MyProperties.API_URL)
+    println(MyProperties.MAX_TEMP)
+    println(MyProperties.LED_F1)
   }
 }

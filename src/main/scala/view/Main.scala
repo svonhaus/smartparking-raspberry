@@ -1,6 +1,6 @@
 package view
 
-import config.Config
+import config.{MyProperties, Config}
 import controller.{Barriere, InterfaceKit}
 import data.DataAdd
 import org.json.JSONObject
@@ -14,15 +14,18 @@ object Main
 {
   def main(args:Array[String])
   {
-    DataAdd.auth() match {
-      case Success(rep) => {
+    DataAdd.auth() match
+    {
+      case Success(rep) =>
+      {
           Config.token = new JSONObject(rep).getString("access_token")
-          if(Config.context == 0)
+
+          if(MyProperties.CONTEXT == 0)
             new UserInterfaceDisplay().initialize()
           else
             new ConsoleDisplay().initialize()
       }
-      case Failure(exc) => println(exc)
+      case Failure(exc) => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
     }
   }
 }

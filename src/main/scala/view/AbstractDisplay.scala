@@ -1,7 +1,9 @@
 package view
 
+import Actor.ActorManager
 import com.phidgets.event._
 import config.Config
+import controller.TouchSensor._
 import controller.{RFID, Barriere, InterfaceKit}
 import data.{DataAdd, DataGet}
 
@@ -61,47 +63,25 @@ abstract class AbstractDisplay
         if (RFID.action != "write" && RFID.action != "update")
         {
           messageTagLu(tag) //Indique le tag scanné
-          try {
-              val user = DataGet.found(tag) /* recherche le tag et indique les informations du user, ou non si pas trouvé. */
-              messagePerson(user.lastName, user.firstName, user.mail, user.inTheParking)
 
-              if (RFID.action == "in" || RFID.action == "out")
-              {
-                val result = DataGet.searchTagUser(tag, RFID.action) // Vérifie si le user peut passer en entrée (in) ou en sortie (out)
-                result match
-                {
-                  case "ok" => /* S'il peut passer, allume la led verte, ouvre la barriere, indique un message et détecte la présence de la voiture qui doit passer */
-                  {
-                    RFID.ledGreenOn()
-                    Config.barriere.ouverture
-                    showMessage("L'utilisateur peut passer, faites entrer la voiture.", "Passage", "INFORMATION_MESSAGE")
-                    Config.IK.carPassed() match /* Si détection que la voiture est bien passée, on enregistre l'action, sinon on affiche une erreur. */
-                    {
-                      case true => {
-                        val result = DataAdd.addFlowParking(tag, RFID.action)
-                        showMessage("La voiture est bien passée.", "Passage", "INFORMATION_MESSAGE")
-                      }
-                      case false => showMessage("La voiture n'est pas passée", "Passage", "ERROR_MESSAGE")
-                    }
-                    Config.barriere.fermeture
-                    RFID.ledGreenOff()
-                  }
-                  case _ => //message d'erreur si le user ne peut pas passer
-                  {
-                    RFID.ledRedOn()
-                    showMessage("L'utilisateur ne peut pas passer. \nCause : " + result, "Passage", "ERROR_MESSAGE")
-                    RFID.ledRedOff()
-                  }
-                }
-              }
-          } catch { //message d'erreur s'il y a eu un problème
-            case exc : Exception => {
-              messagePerson("", "", "", false)
-              RFID.ledRedOn()
-              showMessage(exc.getMessage, "Scan", "ERROR_MESSAGE")
-              RFID.ledRedOff()
-            }
+          try
+          {
+            val user = DataGet.found(tag) /* recherche le tag et indique les informations du user, ou non si pas trouvé. */
+            messagePerson(user.lastName, user.firstName, user.mail, user.inTheParking)
+
+            if (RFID.action == "in" || RFID.action == "out")
+              ActorManager.waitCarToPassActor ! List(tag, RFID.action)
           }
+          catch
+            {
+              case exc : Exception =>
+              {
+                messagePerson("", "", "", false)
+                RFID.ledRedOn()
+                showMessage(exc.getMessage, "Scan", "ERROR_MESSAGE")
+                RFID.ledRedOff()
+              }
+            }
         }
       }
     })
@@ -110,7 +90,7 @@ abstract class AbstractDisplay
     {
       def detached(ae: DetachEvent)
       {
-        println("detachment  1 of " + ae)
+        UtilConsole.showMessage("Detachment of " + ae, getClass.getName, "WARNING_MESSAGE")
         showMessage("Veuillez rattacher le Phidget RFID", "RFID detached", "WARNING_MESSAGE")
       }
     })

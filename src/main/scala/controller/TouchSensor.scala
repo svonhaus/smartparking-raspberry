@@ -4,6 +4,7 @@ import java.io.File
 import java.util.UUID
 import javax.imageio.ImageIO
 
+import Actor.ActorManager
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.common.BitMatrix
@@ -11,6 +12,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.phidgets.InterfaceKitPhidget
 import config.Config
 import data.{DataAdd, DataGet}
+import view.UtilConsole
 
 import scala.util.{Failure, Success}
 
@@ -59,32 +61,27 @@ object TouchSensor {
   /**
    * Traitement pour la création d'un utilisateur temporaire et passage de voiture
    */
-  def touchControl(): Unit = {
-          println("génération du qrcode et impression du ticket")
-          val idGen = genIdTmp()
-          genQRCode(idGen)
-          DataAdd.registerTmp(idGen) match {
-            case Success(rep) => {
-              println(rep)
-              if (rep == "\"Ok\"") {
-                IK.allumer_led(Config.LED_IN_GREEN)
-                barriere.ouverture
-                println("L'utilisateur peut passer, faites entrer la voiture.")
-                IK.carPassed() match {
-                  case true => {
-                    println("La voiture est bien passée.")
-                  }
-                  case false => println("La voiture n'est pas passée")
-                }
-                barriere.fermeture
-                IK.eteindre_led(Config.LED_IN_GREEN)
-              }
-              else "Le parking n'est pas accessible aux utilisateurs temporaires pour l'instant"
-            }
-            case Failure(exc) => {
-              println(exc)
-            }
-          }
-  }
+  def touchControl(): Unit =
+  {
+    UtilConsole.showMessage("Génération du qrcode et impression du ticket", getClass.getName, "INFORMATION_MESSAGE")
 
+    val idGen = genIdTmp()
+    genQRCode(idGen)
+
+    DataAdd.registerTmp(idGen) match
+    {
+      case Success(rep) =>
+      {
+        UtilConsole.showMessage(rep, getClass.getName, "INFORMATION_MESSAGE")
+
+        if (rep == "\"Ok\"")
+        {
+          UtilConsole.showMessage("Guest peut passer, faites entrer la voiture.", getClass.getName, "INFORMATION_MESSAGE")
+          ActorManager.waitCarToPassActor ! RFID.action
+        }
+        else "Le parking n'est pas accessible aux utilisateurs temporaires pour l'instant"
+      }
+      case Failure(exc) => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
+    }
+  }
 }

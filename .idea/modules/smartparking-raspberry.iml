@@ -35,11 +35,22 @@
           <root url="jar://$MODULE_DIR$/../../lib/org.apache.commons.httpclient.jar!/" />
           <root url="jar://$MODULE_DIR$/../../lib/scalaj-http_2.11-0.3.16.jar!/" />
           <root url="jar://$MODULE_DIR$/../../lib/rxscala_2.11-0.24.0-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/org.json.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/rxscala_2.11-0.24.0-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/rxjava-1.0.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/org.apache.commons.httpclient.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/phidget21.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/scalaj-http_2.11-0.3.16.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/zxing-javase.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/zxing.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../lib/rxscala_2.11-0.24.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="org.scalatra:scalatra-akka_2.10:2.2.0-RC3" level="project" />
+    <orderEntry type="library" name="SBT: com.typesafe:config:1.2.0:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.typesafe.akka:akka-actor_2.11:2.3.2:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.typesafe.akka:akka-slf4j_2.11:2.3.2:jar" level="project" />
   </component>
 </module>

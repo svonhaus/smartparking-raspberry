@@ -4,8 +4,9 @@ import Actor._
 import akka.actor.{Props, ActorSystem}
 import com.phidgets.event._
 import com.phidgets.{ InterfaceKitPhidget, PhidgetException }
-import config.Config
+import config.{MyProperties, Config}
 import data.DataAdd
+import view.UtilConsole
 
 import scala.util.{ Failure, Try }
 
@@ -25,20 +26,7 @@ class InterfaceKit
   changeSensibility
   addSensorChangeListener
   addOutputChangeListener
-
-  /*
-    initialisation des Actors
-   */
-  val systemTemp = ActorSystem("TempActor")
-  val TempActor = systemTemp.actorOf(Props[TempActor])
-  /*val systemMagn = ActorSystem("MagneticActor")
-  val MagneticActor = systemMagn.actorOf(Props[MagneticActor])*/
-  val systemIR = ActorSystem("IRActor")
-  val IRActor = systemIR.actorOf(Props[IRActor])
-  val systemTouch = ActorSystem("TouchActor")
-  val TouchActor = systemTouch.actorOf(Props[TouchActor])
-  val systemVibr = ActorSystem("VibrationActor")
-  val VibrationActor = systemVibr.actorOf(Props[VibrationActor])
+  ActorManager.initialize()
 
   //allume les leds au démarrage
   for(i <- 4 to 7) allumer_led(i)
@@ -67,10 +55,10 @@ class InterfaceKit
   
   def waitForAttachment =
     {
-      println("wait for attachment")
+      UtilConsole.showMessage("Wait for attachment.", getClass.getName, "INFORMATION_MESSAGE")
 
       Try(interfaceKit.waitForAttachment(1000)) match {
-        case Failure(ex: PhidgetException) => println(ex.getDescription)
+        case Failure(ex: PhidgetException) => UtilConsole.showMessage("Timeout has occured while waiting for interface kit during initialization, the program will still wait for it.", getClass.getName, "ERROR_MESSAGE")
         case _                             =>
       }
     }
@@ -78,28 +66,25 @@ class InterfaceKit
   def addAttachListener =
     {
       interfaceKit.addAttachListener(new AttachListener {
-        override def attached(attachEvent: AttachEvent) = println("attachment of " + attachEvent)
+        override def attached(attachEvent: AttachEvent) = UtilConsole.showMessage("Attachment of " + attachEvent, getClass.getName, "INFORMATION_MESSAGE")
       })
     }
 
   def addDetachListener =
     {
       interfaceKit.addDetachListener(new DetachListener {
-        override def detached(detachEvent: DetachEvent) =
-          {
-            println("detachment of " + detachEvent)
-          }
+        override def detached(detachEvent: DetachEvent) = UtilConsole.showMessage("Detachment of " + detachEvent, getClass.getName, "INFORMATION_MESSAGE")
       })
     }
 
   def addErrorListener =
     {
       interfaceKit.addErrorListener(new ErrorListener {
-        override def error(errorEvent: ErrorEvent) = println(errorEvent)
+        override def error(errorEvent: ErrorEvent) = UtilConsole.showMessage(errorEvent.getException.getMessage, getClass.getName, "ERROR_MESSAGE")
       })
     }
 
-  def openAny = interfaceKit.openAny
+  def openAny = interfaceKit.open(MyProperties.IK_SERIAL_NUMBER, MyProperties.PHIDGET_SERVER,MyProperties.PORT_PHIGET_SERVER)
   def isAttached = interfaceKit.isAttached
   def getSensorValue(index: Int) = interfaceKit.getSensorValue(index)
   def close = interfaceKit.close
@@ -108,13 +93,13 @@ class InterfaceKit
    * modifie la sensibilité des capteurs
    */
   def changeSensibility = {
-    interfaceKit.setSensorChangeTrigger(Config.SHARP_SENSOR_1, 15)
-    interfaceKit.setSensorChangeTrigger(Config.SHARP_SENSOR_2, 15)
-    interfaceKit.setSensorChangeTrigger(Config.TEMP_SENSOR, 5)
-    interfaceKit.setSensorChangeTrigger(Config.MAGNETIC_SENSOR, 5)
-    interfaceKit.setSensorChangeTrigger(Config.TOUCH_SENSOR, 15)
-    interfaceKit.setSensorChangeTrigger(Config.VIBRATION_SENSOR, 10)
-    interfaceKit.setSensorChangeTrigger(Config.IR_SENSOR, 15)
+    interfaceKit.setSensorChangeTrigger(MyProperties.SHARP_SENSOR_1, 15)
+    interfaceKit.setSensorChangeTrigger(MyProperties.SHARP_SENSOR_2, 15)
+    interfaceKit.setSensorChangeTrigger(MyProperties.TEMP_SENSOR, 5)
+    interfaceKit.setSensorChangeTrigger(MyProperties.MAGNETIC_SENSOR, 5)
+    interfaceKit.setSensorChangeTrigger(MyProperties.TOUCH_SENSOR, 15)
+    interfaceKit.setSensorChangeTrigger(MyProperties.VIBRATION_SENSOR, 10)
+    interfaceKit.setSensorChangeTrigger(MyProperties.IR_SENSOR, 15)
   }
 
   /**
@@ -122,30 +107,33 @@ class InterfaceKit
    */
   def addSensorChangeListener =
   {
-    Try(interfaceKit.addSensorChangeListener(new SensorChangeListener {
+    Try(interfaceKit.addSensorChangeListener(new SensorChangeListener
+    {
       override def sensorChanged(sensorChangeEvent: SensorChangeEvent) = {
         val indexSensor = sensorChangeEvent.getIndex
         indexSensor match {
-          case Config.TEMP_SENSOR => {
-            TempActor ! getSensorValue(indexSensor)
+          case MyProperties.TEMP_SENSOR => {
+            ActorManager.tempListenerActor ! getSensorValue(indexSensor)
           }
           /*case Config.MAGNETIC_SENSOR => {
             MagneticActor ! getSensorValue(indexSensor)
           }*/
-          case Config.IR_SENSOR => {
-            IRActor ! getSensorValue(indexSensor)
+          case MyProperties.IR_SENSOR => {
+            ActorManager.iRListenerActor ! getSensorValue(indexSensor)
           }
-          case Config.TOUCH_SENSOR => {
-            TouchActor ! getSensorValue(indexSensor)
+          case MyProperties.TOUCH_SENSOR => {
+            ActorManager.touchListenerActor ! getSensorValue(indexSensor)
           }
-          case Config.VIBRATION_SENSOR => {
-            VibrationActor ! getSensorValue(indexSensor)
+          case MyProperties.VIBRATION_SENSOR => {
+            ActorManager.vibrationListenerActor ! getSensorValue(indexSensor)
           }
           case _ =>
         }
       }
-    })) match {
-      case Failure(exc : PhidgetException) => println(exc.getDescription)
+    }))
+    match
+    {
+      case Failure(exc : PhidgetException) => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
       case _                               =>
     }
   }
@@ -155,9 +143,11 @@ class InterfaceKit
    */
   def addOutputChangeListener()
   {
-    interfaceKit.addOutputChangeListener(new OutputChangeListener() {
-      def outputChanged(oe: OutputChangeEvent) {
-        println(oe.getIndex + " change to " + oe.getState)
+    interfaceKit.addOutputChangeListener(new OutputChangeListener()
+    {
+      def outputChanged(oe: OutputChangeEvent)
+      {
+        UtilConsole.showMessage("Led n°" + oe.getIndex + " has changed to " + oe.getState, getClass.getName, "INFORMATION_MESSAGE")
       }
     })
   }
@@ -172,14 +162,11 @@ class InterfaceKit
     {
       val interfaceKitWaitCar = new InterfaceKitWaitCar()
       interfaceKitWaitCar.waitForCarToPassBarrier()
-      /*val systemSharp = ActorSystem("SharpActor")
-      val SharpActor = systemTemp.actorOf(Props[SharpSensorActor])
-      SharpActor ! "tick"
-      true*/
+      true
     }
     else
     {
-      println("You must attach the interfaceKit")
+      UtilConsole.showMessage("You must attach the interface kit to check if a car is passing the barrier!", getClass.getName, "WARNING_MESSAGE")
       false
     }
   }
@@ -201,9 +188,11 @@ class InterfaceKit
   }
 
   /* Clignotement de la led i */
-  def faire_clignoter(i: Int) {
-    for(ind <- 0 to 3) {
-      println("clignotement")
+  def faire_clignoter(i: Int)
+  {
+    for(ind <- 0 to 3)
+    {
+      UtilConsole.showMessage("Blinking of the led n° " + i, getClass.getName, "INFORMATION_MESSAGE")
       allumer_led(i)
       Thread.sleep(500)
       eteindre_led(i)
@@ -215,19 +204,20 @@ class InterfaceKit
   def go_to_floor(num: Int) {
     {
       var i: Int = 0
-      while (i < 5) {
+      while (i < 5)
+      {
         {
-          println(i)
+          UtilConsole.showMessage("Étage n° " + i, getClass.getName, "INFORMATION_MESSAGE")
           this.allumer_led(num)
           Thread.sleep(500)
           this.eteindre_led(num)
           Thread.sleep(500)
         }
-        ({
-          i += 1; i - 1
-        })
+        {
+          i += 1;
+          i - 1
+        }
       }
     }
   }
-
 }

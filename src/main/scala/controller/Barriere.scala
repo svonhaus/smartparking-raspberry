@@ -5,6 +5,7 @@ package controller
 
 import com.phidgets._
 import com.phidgets.event._
+import view.UtilConsole
 
 /**
  * Classe controlleur pour initialiser et effectuer des actions sur le servoMotor (représenté par une barrière dans notre application)
@@ -49,9 +50,10 @@ class Barriere
     config();*/
   }
 	
-  def config() {
-    println("Configuration du servo motor");
-    println("waiting for AdvancedServo attachment...");
+  def config()
+  {
+    UtilConsole.showMessage("Configuration du servo motor", getClass.getName, "INFORMATION_MESSAGE")
+    UtilConsole.showMessage("Waiting for AdvancedServo attachment.", getClass.getName, "INFORMATION_MESSAGE")
     servo.openAny();
     servo.waitForAttachment();
     servo.setPosition(0, 112.5);
@@ -61,8 +63,9 @@ class Barriere
   /**
    * Ouverture de la barrière (rotation du ServoMotor vers la position 0)
    */
-  def ouverture():Unit ={
-		println("Ouverture barrière...");
+  def ouverture():Unit =
+  {
+    UtilConsole.showMessage("Ouverture barrière...", getClass.getName, "INFORMATION_MESSAGE")
 	  //servo.setPosition(0, 0.0);
 	}
 
@@ -70,7 +73,7 @@ class Barriere
    * Fermeture de la barrière (rotation du ServoMotor vers la position 112.5)
    */
 	def  fermeture() = {
-		println("Fermeture barrière...");
+    UtilConsole.showMessage("Fermeture barrière...", getClass.getName, "INFORMATION_MESSAGE")
 	  //servo.setPosition(0, 112.5);
 	}
 	
