@@ -81,7 +81,7 @@ object TouchSensor {
         }
         else "Le parking n'est pas accessible aux utilisateurs temporaires pour l'instant"
       }
-      case Failure(exc) => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
+      case Failure(exc:Throwable) => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
     }
   }
 }
