@@ -2,7 +2,7 @@ package Actor
 
 import akka.actor.Actor
 import com.phidgets.InterfaceKitPhidget
-import config.Config
+import config.{MyProperties, Config}
 import controller.{RFID, SharpSensorForCar}
 import data.DataAdd
 import view.UtilConsole
@@ -12,7 +12,7 @@ import scala.concurrent.{Await, Future, Promise}
 import scala.util.{Failure, Success, Try}
 
 /**
- * Created by timmy_machine on 22/04/15.
+ * Actor pour les capteurs de distances
  */
 class ManagerSharpSensorActor extends Actor
 {
@@ -32,13 +32,13 @@ class ManagerSharpSensorActor extends Actor
 
   override def preStart()
   {
-    ik.open(319197,"laptop-steven.local",5001)
+    ik.open(MyProperties.IK_SERIAL_NUMBER, MyProperties.PHIDGET_SERVER,MyProperties.PORT_PHIGET_SERVER)
     ik.waitForAttachment()
   }
 
   def receive =
   {
-    case List(tag:String, action:String) =>
+    case List(tag:String, action:String) => //user avec tag
     {
       Try(SharpSensorForCar.initializationBeforeCarComeIn(tag, action)) match
       {
@@ -71,11 +71,12 @@ class ManagerSharpSensorActor extends Actor
       }
     }
 
-    case action:String =>
+    case idGen : String => //user temporaire
     {
       if(waitCarToPass())
       {
         UtilConsole.showMessage("Guest has passed the barrier.", getClass.getName, "INFORMATION_MESSAGE")
+        DataAdd.addFlowParkingTmp(idGen)
         Config.barriere.fermeture
         RFID.ledGreenOff()
       }

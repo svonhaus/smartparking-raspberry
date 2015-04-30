@@ -34,6 +34,7 @@ class VibrationCheckingActor extends Actor {
           if (vibration >= MyProperties.MAX_VIBR)
           {
             Config.IK.faire_clignoter(MyProperties.LED_VIBRATION_PROBLEM)
+            ActorManager.synVocActor ! vibration
           } else {
             Config.IK.eteindre_led(MyProperties.LED_VIBRATION_PROBLEM)
           }

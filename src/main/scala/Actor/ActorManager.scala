@@ -4,7 +4,7 @@ import akka.actor.{Props, ActorSystem}
 import view.UtilConsole
 
 /**
- * Created by Steven on 25-04-15.
+ * Centralisation des Actors
  */
 object ActorManager
 {
@@ -18,6 +18,7 @@ object ActorManager
   val vibrationListenerActor = actorSystem.actorOf(Props[VibrationListenerActor])
   val touchListenerActor = actorSystem.actorOf(Props[TouchListenerActor])
   val waitCarToPassActor = actorSystem.actorOf(Props[ManagerSharpSensorActor])
+  val synVocActor = actorSystem.actorOf(Props[synVocActor])
 
   def initialize() =
   {

@@ -77,7 +77,7 @@ object TouchSensor {
         if (rep == "\"Ok\"")
         {
           UtilConsole.showMessage("Guest peut passer, faites entrer la voiture.", getClass.getName, "INFORMATION_MESSAGE")
-          ActorManager.waitCarToPassActor ! RFID.action
+          ActorManager.waitCarToPassActor ! idGen
         }
         else "Le parking n'est pas accessible aux utilisateurs temporaires pour l'instant"
       }
