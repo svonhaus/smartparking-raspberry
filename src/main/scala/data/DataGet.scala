@@ -69,16 +69,16 @@ object DataGet
   /*
   * @return l'indice de vibration dans le parking
   */
-  def getVibr (): Try[Double] = { //TODO
-    Try(850.0/*Double.parseDouble(getHttp("Parking/vibration"))*/)
+  def getVibr (): Try[Double] = {
+    Try(Double.parseDouble(getHttp("Parking/vibration")))
   }
 
   /*
   * @return les places dispos du parking
   */
-def getPlaces (): Try[String] = { //TODO
-  Try("ok"/*getHttp("Parking/places")*/)
-}
+  def getPlaces (): Try[String] = {
+    Try(getHttp("Parking/places"))
+  }
 
   /**
    * @return l'action qui doit être effectué au moment de la demande.

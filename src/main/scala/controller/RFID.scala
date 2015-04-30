@@ -44,7 +44,7 @@ object RFID
           case exc: PhidgetException => UtilConsole.showMessage(exc.getMessage, getClass.getName, "ERROR_MESSAGE")
         }
 
-        UtilConsole.showMessage(ae + " has been attached.", getClass.getName, "ERROR_MESSAGE")
+        UtilConsole.showMessage(ae + " has been attached.", getClass.getName, "INFORMATION_MESSAGE")
       }
     })
   }
@@ -77,7 +77,11 @@ object RFID
   def waitForAttachement()
   {
     UtilConsole.showMessage("Wait for attachment.", getClass.getName, "INFORMATION_MESSAGE")
-    Try(rfid.waitForAttachment(1000))
+
+    Try(rfid.waitForAttachment(1000)) match {
+      case Failure(ex: PhidgetException) => UtilConsole.showMessage("Timeout has occured while waiting for RFID during initialization, the program will still wait for it.", getClass.getName, "ERROR_MESSAGE")
+      case _                             =>
+    }
   }
 
   /**

@@ -14,7 +14,7 @@ object DataAdd
   //définition générique d'une requête post avec scalaj
   def postHttp (path : String) = Http.post(MyProperties.API_URL + path).option(HttpOptions.connTimeout(5000)).option(HttpOptions.readTimeout(10000)).header("Authorization", "Bearer " + Config.token)
   //définition générique d'une requête put avec scalaj
-  def putHttp (path : String, json : String) = Http.postData(MyProperties.API_URL + path, json).header("Authorization", "Bearer "+Config.token).method("put").header("Content-Type", "application/json").asString
+  def putHttp (path : String, json : String) = Http.postData(MyProperties.API_URL + path, json).method("put").header("Authorization", "Bearer "+Config.token).header("Content-Type", "application/json").asString
 
   /** Permet une authentification sur le webservice afin de faire les requêtes privée par-après
     * @return un objet json contenant le token
@@ -84,11 +84,10 @@ object DataAdd
    *             "NotPaid" si l'utilisateur n'a pas payé
    *             ou "AlreadyOut" si l'utilisateur temporaire est déjà sorti.
    */
-  def addFlowParkingTmp (id : String) =
-  {
-    val json = new JSONObject().put("id", id).toString()
+  def addFlowParkingTmp (id : String) = {
+    val json = new JSONObject().put("id", id).put("Inside", true).toString()
     Try(putHttp("Ticket", json))
-}
+  }
 
   /**
   * Mise à jour via le webservice de la température du parking.
@@ -102,23 +101,22 @@ object DataAdd
 
   /**
   * Mise à jour via le webservice de la place de parking.
-  * @param num_place : température du parking ayant changée
-  * @param taken : true si la place est prise, false sinon
+  * @param id_place : numéro de la place
   */
-  def updateParkingSpace(num_place : Int, taken : Boolean) =
+  def updateParkingSpace(id_place : String, available : Boolean) =
   {
-  /*val json = new JSONObject().put("space", temp).toString()
-  Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)*/
+    val json = new JSONObject().toString()
+    Try(putHttp("place/"+id_place+"?available="+available, json))
   }
 
   /**
-  * Mise à jour via le webservice de la détection de tremblement dans parking.
+  * Mise à jour via le webservice de la détection de tremblement dans le parking.
   * @param vibration : vibration du parking ayant changée et pouvant causer un tremblement de terre
   */
   def updateVibration(vibration : Double) =
   {
-  /*val json = new JSONObject().put("vibration", temp).toString()
-  Try(Http.postData(apiUrl + "Parking", json).method("put").header("Content-Type", "application/json").asString)*/
+    val json = new JSONObject().toString()
+    Try(putHttp("Parking?vibration="+vibration, json))
   }
 
 }
