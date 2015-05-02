@@ -30,7 +30,7 @@ class TempCheckingActor extends Actor {
           UtilConsole.showMessage("Température du parking : " + temperature, getClass.getName, "INFORMATION_MESSAGE")
 
           if (temperature >= MyProperties.MAX_TEMP) {
-            Config.IK.faire _clignoter(MyProperties.LED_TEMP_PROBLEM)
+            Config.IK.faire_clignoter(MyProperties.LED_TEMP_PROBLEM)
           } else {
             Config.IK.eteindre_led(MyProperties.LED_TEMP_PROBLEM)
           }
