@@ -28,6 +28,9 @@ class InterfaceKit
   addOutputChangeListener
   ActorManager.initialize()
 
+  //allume les leds au démarrage
+  for(i <- 4 to 7) allumer_led(i)
+
   /*
     Permet de générer un stream de valeurs provenant d'un capteur
    */
@@ -93,6 +96,7 @@ class InterfaceKit
     interfaceKit.setSensorChangeTrigger(MyProperties.SHARP_SENSOR_1, 15)
     interfaceKit.setSensorChangeTrigger(MyProperties.SHARP_SENSOR_2, 15)
     interfaceKit.setSensorChangeTrigger(MyProperties.TEMP_SENSOR, 5)
+    interfaceKit.setSensorChangeTrigger(MyProperties.MAGNETIC_SENSOR, 5)
     interfaceKit.setSensorChangeTrigger(MyProperties.TOUCH_SENSOR, 15)
     interfaceKit.setSensorChangeTrigger(MyProperties.VIBRATION_SENSOR, 10)
     interfaceKit.setSensorChangeTrigger(MyProperties.IR_SENSOR, 15)
@@ -111,6 +115,9 @@ class InterfaceKit
           case MyProperties.TEMP_SENSOR => {
             ActorManager.tempListenerActor ! getSensorValue(indexSensor)
           }
+          /*case Config.MAGNETIC_SENSOR => {
+            MagneticActor ! getSensorValue(indexSensor)
+          }*/
           case MyProperties.IR_SENSOR => {
             ActorManager.iRListenerActor ! getSensorValue(indexSensor)
           }

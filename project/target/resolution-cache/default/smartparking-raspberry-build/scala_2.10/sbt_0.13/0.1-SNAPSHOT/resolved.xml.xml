@@ -4,7 +4,7 @@
 		module="smartparking-raspberry-build"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20150428143201"
+		publication="20150502102815"
 		e:sbtVersion="0.13" e:scalaVersion="2.10"
 	>
 		<description>

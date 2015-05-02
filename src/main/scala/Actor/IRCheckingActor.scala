@@ -1,9 +1,8 @@
 package Actor
 
 import akka.actor.Actor
-import config.{Config, MyProperties}
+import config.MyProperties
 import data.DataGet
-import org.json.{JSONObject, JSONArray}
 import view.UtilConsole
 
 import scala.concurrent.duration._
@@ -17,15 +16,7 @@ class IRCheckingActor extends Actor {
   import context.dispatcher
   val tick = context.system.scheduler.schedule(0 millis, MyProperties.INTERVAL_CHECK_PLACES, self, "checkPlaces")
 
-  /*
-  Calcule le nombre de places pour un étage
-   */
-  def nbrPlaceAvailable(places : String, floor : String): Int = {
-    new JSONObject(places).getJSONObject(floor).getInt("available")
-  }
-
-  /*
-   si changement de valeur, envoi de la place et si elle est prise ou non,
+  /*si changement de valeur, envoi de la place et si elle est prise ou non,
    allume la led de la place
   */
   def receive = {
@@ -35,6 +26,7 @@ class IRCheckingActor extends Actor {
       val places = DataGet.getPlaces()
 
       places match {
+<<<<<<< HEAD
         case Success(places) => {
           val nbrPlaceAvailableF0 = nbrPlaceAvailable(places, "f0")
           val nbrPlaceAvailableF1 = nbrPlaceAvailable(places, "f1")
@@ -55,6 +47,9 @@ class IRCheckingActor extends Actor {
           else
             Config.IK.allumer_led(MyProperties.LED_F1)
         }
+=======
+        case Success(places) => UtilConsole.showMessage("Places du parking : " + places, getClass.getName ,"INFORMATION_MESSAGE")
+>>>>>>> origin/master
         case Failure(exc) => UtilConsole.showMessage("Error with webservice", getClass.getName, "ERROR_MESSAGE")
       }
     }
